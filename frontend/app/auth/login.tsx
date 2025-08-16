@@ -150,17 +150,32 @@ export default function Login() {
             <Text style={styles.forgotPassword}>Forgot Password?</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={[styles.loginButton, loading && styles.loginButtonDisabled]} 
-            onPress={handleLogin}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.loginButtonText}>Sign In</Text>
-            )}
-          </TouchableOpacity>
+          <View style={styles.loginButton}>
+            <button
+              onClick={handleLogin}
+              disabled={loading}
+              style={{
+                width: '100%',
+                backgroundColor: loading ? '#007AFF80' : '#007AFF',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 12,
+                padding: 16,
+                fontSize: 16,
+                fontWeight: '600',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                'Sign In'
+              )}
+            </button>
+          </View>
 
           {biometricEnabled && (
             <TouchableOpacity 

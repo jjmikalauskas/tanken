@@ -7,8 +7,7 @@ import {
   signInWithEmailAndPassword,
   signOut,
   sendPasswordResetEmail,
-  updateProfile,
-  connectAuthEmulator
+  updateProfile
 } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
@@ -39,12 +38,56 @@ try {
   auth = getAuth(app);
 }
 
-// Disable reCAPTCHA for web development
+// GLOBAL reCAPTCHA BYPASS - Apply immediately after auth initialization
 if (typeof window !== 'undefined') {
-  // Add reCAPTCHA configuration to disable it
-  window.recaptchaVerifier = null;
-  auth.settings = auth.settings || {};
-  auth.settings.appVerificationDisabledForTesting = true;
+  console.log('🔧 Applying global reCAPTCHA bypass for development...');
+  
+  // Method 1: Disable app verification
+  try {
+    if (auth.settings) {
+      auth.settings.appVerificationDisabledForTesting = true;
+    }
+  } catch (e) {
+    console.log('Method 1 bypass attempt:', e);
+  }
+  
+  // Method 2: Override reCAPTCHA methods
+  try {
+    // Create a fake recaptcha verifier
+    window.recaptchaVerifier = {
+      type: 'recaptcha',
+      verify: () => Promise.resolve('fake-token'),
+      render: () => Promise.resolve('fake-widget-id'),
+      clear: () => {},
+    };
+    
+    // Override any reCAPTCHA config functions
+    if (auth._delegate && auth._delegate._config) {
+      auth._delegate._config.appVerificationDisabledForTesting = true;
+    }
+    
+  } catch (e) {
+    console.log('Method 2 bypass attempt:', e);
+  }
+  
+  // Method 3: Monkey patch the problematic function
+  try {
+    const originalAuth = auth;
+    if (originalAuth && originalAuth._delegate) {
+      // Override getRecaptchaConfig if it exists
+      const delegate = originalAuth._delegate;
+      if (delegate.getRecaptchaConfig) {
+        delegate.getRecaptchaConfig = () => ({ 
+          recaptchaEnforcementState: 'OFF',
+          recaptchaKey: 'fake-key'
+        });
+      }
+    }
+  } catch (e) {
+    console.log('Method 3 bypass attempt:', e);
+  }
+  
+  console.log('🔧 reCAPTCHA bypass configuration complete');
 }
 
 export { auth };

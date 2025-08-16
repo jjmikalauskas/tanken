@@ -249,6 +249,7 @@ export default function Register() {
             style={[styles.registerButton, loading && styles.registerButtonDisabled]} 
             onPress={handleRegister}
             disabled={loading}
+            activeOpacity={0.8}
           >
             {loading ? (
               <ActivityIndicator color="#fff" />

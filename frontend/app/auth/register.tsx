@@ -246,18 +246,17 @@ export default function Register() {
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity 
+          <Pressable 
             style={[styles.registerButton, loading && styles.registerButtonDisabled]} 
             onPress={handleRegister}
             disabled={loading}
-            activeOpacity={0.8}
           >
             {loading ? (
               <ActivityIndicator color="#fff" />
             ) : (
               <Text style={styles.registerButtonText}>Create Account</Text>
             )}
-          </TouchableOpacity>
+          </Pressable>
 
           <View style={styles.loginContainer}>
             <Text style={styles.loginText}>Already have an account? </Text>

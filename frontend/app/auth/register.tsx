@@ -98,8 +98,14 @@ export default function Register() {
       
       console.log('Attempting to create user with email:', email);
       
+      // Disable reCAPTCHA for this session
+      if (typeof window !== 'undefined' && auth) {
+        auth.settings = auth.settings || {};
+        auth.settings.appVerificationDisabledForTesting = true;
+      }
+      
       // Create user account
-      const userCredential = await createUserWithEmailAndPassword(email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       
       console.log('User created successfully:', userCredential.user.uid);
       
@@ -107,6 +113,8 @@ export default function Register() {
       await updateProfile(userCredential.user, {
         displayName: `${firstName} ${lastName}`,
       });
+
+      console.log('Profile updated successfully');
 
       // Ask about biometric authentication
       const isSupported = await checkBiometricSupport();
@@ -125,6 +133,7 @@ export default function Register() {
       }
 
       // Navigate to main app
+      console.log('Navigating to home page');
       router.replace('/(tabs)/home');
     } catch (error) {
       console.error('Registration error:', error);

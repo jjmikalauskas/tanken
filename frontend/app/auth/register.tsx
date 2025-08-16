@@ -31,6 +31,23 @@ export default function Register() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { checkBiometricSupport, setBiometricEnabled } = useAuth();
 
+  // Expose form data to global scope for debugging
+  React.useEffect(() => {
+    (window as any).getFormData = () => {
+      console.log('Current form data:', formData);
+      return formData;
+    };
+    (window as any).testRegister = () => {
+      console.log('Testing register function...');
+      handleRegister();
+    };
+  }, [formData]);
+
+  // Log form data changes
+  React.useEffect(() => {
+    console.log('Form data updated:', formData);
+  }, [formData]);
+
   const updateFormData = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };

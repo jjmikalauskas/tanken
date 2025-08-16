@@ -196,7 +196,7 @@ export default function Settings() {
               </View>
             </View>
             <Ionicons name="chevron-forward" size={16} color="#666" />
-          </TouchureOppacity>
+          </TouchableOpacity>
 
           <TouchableOpacity style={styles.settingItem}>
             <View style={styles.settingLeft}>

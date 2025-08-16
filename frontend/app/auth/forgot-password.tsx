@@ -85,17 +85,32 @@ export default function ForgotPassword() {
             />
           </View>
 
-          <TouchableOpacity 
-            style={[styles.resetButton, loading && styles.resetButtonDisabled]} 
-            onPress={handleResetPassword}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.resetButtonText}>Send Reset Email</Text>
-            )}
-          </TouchableOpacity>
+          <View style={styles.resetButton}>
+            <button
+              onClick={handleResetPassword}
+              disabled={loading}
+              style={{
+                width: '100%',
+                backgroundColor: loading ? '#007AFF80' : '#007AFF',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 12,
+                padding: 16,
+                fontSize: 16,
+                fontWeight: '600',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                'Send Reset Email'
+              )}
+            </button>
+          </View>
 
           <View style={styles.loginContainer}>
             <Text style={styles.loginText}>Remember your password? </Text>

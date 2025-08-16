@@ -130,10 +130,28 @@ export default function Profile() {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
-          <Ionicons name="log-out-outline" size={20} color="#FF3B30" />
-          <Text style={styles.signOutText}>Sign Out</Text>
-        </TouchableOpacity>
+        <View style={styles.signOutButton}>
+          <button
+            onClick={handleSignOut}
+            style={{
+              width: '100%',
+              backgroundColor: '#FF3B3020',
+              color: '#FF3B30',
+              border: 'none',
+              borderRadius: 12,
+              padding: 16,
+              fontSize: 16,
+              fontWeight: '600',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Ionicons name="log-out-outline" size={20} color="#FF3B30" style={{ marginRight: 8 }} />
+            Sign Out
+          </button>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );

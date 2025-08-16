@@ -64,7 +64,7 @@ export default function ForgotPassword() {
           >
             <Ionicons name="arrow-back" size={24} color="#fff" />
           </TouchableOpacity>
-          <Text style={styles.title}>Reset Password</Text>
+          <Text style={styles.title}>Reset Password 12:51</Text>
           <Text style={styles.subtitle}>
             Enter your email address and we'll send you instructions to reset your password.
           </Text>

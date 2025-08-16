@@ -312,7 +312,7 @@ export default function Register() {
               {loading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                'Create Account 12:43'
+                'Create Account 12:46'
               )}
             </button>
           </View>

@@ -175,7 +175,7 @@ export default function Register() {
           >
             <Ionicons name="arrow-back" size={24} color="#fff" />
           </TouchableOpacity>
-          <Text style={styles.title}>Create Account</Text>
+          <Text style={styles.title}>Create Account 12:52</Text>
           <Text style={styles.subtitle}>Join us today</Text>
         </View>
 

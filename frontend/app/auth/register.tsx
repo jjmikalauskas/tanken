@@ -263,17 +263,32 @@ export default function Register() {
             </TouchableOpacity>
           </View>
 
-          <Pressable 
-            style={[styles.registerButton, loading && styles.registerButtonDisabled]} 
-            onPress={handleRegister}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.registerButtonText}>Create Account</Text>
-            )}
-          </Pressable>
+          <View style={styles.registerButton}>
+            <button
+              onClick={handleRegister}
+              disabled={loading}
+              style={{
+                width: '100%',
+                backgroundColor: loading ? '#007AFF80' : '#007AFF',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 12,
+                padding: 16,
+                fontSize: 16,
+                fontWeight: '600',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                'Create Account'
+              )}
+            </button>
+          </View>
 
           <View style={styles.loginContainer}>
             <Text style={styles.loginText}>Already have an account? </Text>

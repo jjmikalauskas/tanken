@@ -19,34 +19,49 @@ export default function ForgotPassword() {
   const [loading, setLoading] = useState(false);
 
   const handleResetPassword = async () => {
+    console.log('🔄 Reset password button clicked! 12:56');
+    console.log('🔄 Email field value:', email || 'empty');
+    
     if (!email) {
+      console.log('🔄 Validation failed: No email provided');
       Alert.alert('Error', 'Please enter your email address');
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
+      console.log('🔄 Validation failed: Invalid email format');
       Alert.alert('Error', 'Please enter a valid email address');
       return;
     }
 
     setLoading(true);
+    console.log('🔄 Starting password reset process...');
+    
     try {
+      console.log('🔄 Sending password reset email to:', email);
       await sendPasswordResetEmail(email);
+      
+      console.log('🔄 Password reset email sent successfully');
       Alert.alert(
         'Reset Email Sent',
         'Check your email for instructions to reset your password.',
         [
           {
             text: 'OK',
-            onPress: () => router.back(),
+            onPress: () => {
+              console.log('🔄 Navigating back to login');
+              router.back();
+            },
           },
         ]
       );
     } catch (error) {
+      console.error('🔄 Reset password error:', error);
       Alert.alert('Error', error.message);
     } finally {
       setLoading(false);
+      console.log('🔄 Reset password process completed');
     }
   };
 

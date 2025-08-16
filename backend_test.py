@@ -12,7 +12,7 @@ from datetime import datetime
 import uuid
 
 # Backend URL from environment
-BACKEND_URL = "http://localhost:3000/api"
+BACKEND_URL = "http://localhost:8001/api"
 
 class FirebaseBackendTester:
     def __init__(self):

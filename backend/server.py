@@ -1,4 +1,5 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -6,13 +7,34 @@ import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field
-from typing import List
+from typing import List, Optional
 import uuid
 from datetime import datetime
-
+import firebase_admin
+from firebase_admin import credentials, auth
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
+
+# Firebase Admin initialization
+firebase_service_account = {
+    "type": "service_account",
+    "project_id": "mongoose2-app",
+    "private_key_id": "1c4b91873ec1fae8da3b363554d9a6148cd9b81b",
+    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC9x2gtq2u8xme/\nL/vFvMdhW6IZ457T3fAu0IlB0YTbNWDjw+yogBvJoFqA48iiN3Z6OLv42UUU8xm9\nj3FIpSf072jRHGOHmbvRPCzRli9WOH/pVCmQCLYY+xpiO0nf8Bz5hvJ0+ooc1Bmd\nYkOj2M1RNVsGcDICufb77nwVYX3d9BqQcLdmoF92TpX59Ar48gZb13c8QHzmmNuf\nFbMQshPZuBZjFbiZt5hqdjD3NqzJx/z5f0ej/YKMOG++ekMkhq4I/euhmRdLaFP9\nMxldpstAtaLINf5iOoutcJvHYFmRmHtQaMAsRSzfsGNPX+77uLAzYdeejUezWFyZ\n5aveNVC/AgMBAAECggEAXfLG4IDxk2DXAD8lURTs0QYXX+Cegnzmx44lvMcXkZtB\nrU+TKzFMUErJMvBQpPl29fd7GqyYddAI6J4HszJLbwZL6eU3YmwZHfI/r7u9EF5k\n+CHZd3vQhdpdC88U+b644VBMW9uhnrbjPVXlbUnJDpAu0SeeolnkaoB7vevm7wZr\nzJhZ3t4auaOt/+kI9hgX5g6aJCrE/JlDpdyeSODdzFcJp6ZB+CtBPZFTjlrLHDu5\n3BKGfikCZSiEPtTUuUwQQWwPhiJ71hhVk5kYlsjEy368nnN8DoydvzMxI+ClGFvy\nF1UH/kiHaEgFe1HnsGzfoXC5Qem3JFaV2/p4NV+4HQKBgQDoWluP/GlbgIiYRP3F\nm9HgZifNK3c18+p96zhPITRL/KZ0CFWrmF4QK2wBCFCvQYpsqB6FWGyrUcJ8wHuE\nZa6w9ejZOU4fOySV4R2Aj+pQi0VfMSiPUI/QP5UcSwBLVfq6eaQoVHrnEv+Vmwje\nqUuYc/f/BjqECwzPQssxhfk3pQKBgQDRF9cvYfoujUM67f3HqC5Q5Dlk1bzB5qZc\n66E7IQwcVtCbgwdWfcuSiXvHqTCRq73kdxuj8DxMyyv9sGrr4QIGihsvAmmr9Sq0\nSlN7UTkaffyfMOZAuRreHiqXUagwJ5rwztIzsUOO5WGKO5s2EXVDWVJRjbLiOa6t\nPdnNARpZkwKBgEkCg3zl8nEnHUTDgP5D7RnW37DPdKEGaOtyKvpqU5WA6QjSyaCm\nuv/XtRNJ+phnPsjPtu9tjo/ym+s5TFaY4OCIFMeVAyA7JE7YMr3/+r+eU4kK2FTY\nGqh0IjWGt6v0c1l++X8WtJvBU4A9+/aDOdbIsed3nJF7K2ZA9bo0/89lAoGBAM96\nj61V1JIy3F5yX9upd+QOwyDaskXZ4ITdz4xD26eXQcK+fx6FDubmg6v4p9g0ieZV\nhljjfoJZLNq8HyzWhlME4bqA82iNi4WBJ1t7mmU+VNmGBUR+KTn0xyCGB5VZB3ci\nUxS2NipqVKJ9SSOaqThePr/sEnBG+pyvfhrdmE7/AoGBAL33F0+yHZ+0w/Bs6suH\nQyrWzW1fxhgHTwWiW7t5x3SwR2KTDFx0Jo5Pb0HlwvbxSugjt1fzMJMlysoQBtRz\nklYnBQQr3iG+hw/7Ow1DlNl4GwABQHhVhiSw6hnaOsEQz8K6F4+2wuY766RsKGIi\nLbXr6eQncyRXBb3XVWH9h76s\n-----END PRIVATE KEY-----\n",
+    "client_email": "firebase-adminsdk-fbsvc@mongoose2-app.iam.gserviceaccount.com",
+    "client_id": "115431696533845226827",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40mongoose2-app.iam.gserviceaccount.com",
+    "universe_domain": "googleapis.com"
+}
+
+# Initialize Firebase Admin
+if not firebase_admin._apps:
+    cred = credentials.Certificate(firebase_service_account)
+    firebase_admin.initialize_app(cred)
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
@@ -25,6 +47,21 @@ app = FastAPI()
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
+# Security
+security = HTTPBearer()
+
+# Firebase auth dependency
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    try:
+        # Verify the Firebase ID token
+        decoded_token = auth.verify_id_token(credentials.credentials)
+        return decoded_token
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
 # Define Models
 class StatusCheck(BaseModel):
@@ -35,7 +72,25 @@ class StatusCheck(BaseModel):
 class StatusCheckCreate(BaseModel):
     client_name: str
 
-# Add your routes to the router instead of directly to app
+class UserProfile(BaseModel):
+    uid: str
+    email: str
+    display_name: Optional[str] = None
+    phone_number: Optional[str] = None
+    address: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class UserProfileCreate(BaseModel):
+    phone_number: Optional[str] = None
+    address: Optional[str] = None
+
+class UserProfileUpdate(BaseModel):
+    display_name: Optional[str] = None
+    phone_number: Optional[str] = None
+    address: Optional[str] = None
+
+# Routes
 @api_router.get("/")
 async def root():
     return {"message": "Hello World"}
@@ -51,6 +106,87 @@ async def create_status_check(input: StatusCheckCreate):
 async def get_status_checks():
     status_checks = await db.status_checks.find().to_list(1000)
     return [StatusCheck(**status_check) for status_check in status_checks]
+
+# User Profile Routes
+@api_router.post("/user/profile", response_model=UserProfile)
+async def create_user_profile(
+    profile_data: UserProfileCreate,
+    current_user = Depends(get_current_user)
+):
+    """Create or update user profile"""
+    user_profile = UserProfile(
+        uid=current_user['uid'],
+        email=current_user['email'],
+        display_name=current_user.get('name'),
+        phone_number=profile_data.phone_number,
+        address=profile_data.address
+    )
+    
+    # Upsert the profile
+    await db.user_profiles.replace_one(
+        {"uid": current_user['uid']},
+        user_profile.dict(),
+        upsert=True
+    )
+    
+    return user_profile
+
+@api_router.get("/user/profile", response_model=UserProfile)
+async def get_user_profile(current_user = Depends(get_current_user)):
+    """Get current user's profile"""
+    profile = await db.user_profiles.find_one({"uid": current_user['uid']})
+    
+    if not profile:
+        # Create a basic profile if it doesn't exist
+        user_profile = UserProfile(
+            uid=current_user['uid'],
+            email=current_user['email'],
+            display_name=current_user.get('name')
+        )
+        await db.user_profiles.insert_one(user_profile.dict())
+        return user_profile
+    
+    return UserProfile(**profile)
+
+@api_router.put("/user/profile", response_model=UserProfile)
+async def update_user_profile(
+    profile_update: UserProfileUpdate,
+    current_user = Depends(get_current_user)
+):
+    """Update user profile"""
+    update_data = {k: v for k, v in profile_update.dict().items() if v is not None}
+    update_data['updated_at'] = datetime.utcnow()
+    
+    result = await db.user_profiles.update_one(
+        {"uid": current_user['uid']},
+        {"$set": update_data}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    
+    # Return updated profile
+    profile = await db.user_profiles.find_one({"uid": current_user['uid']})
+    return UserProfile(**profile)
+
+@api_router.delete("/user/profile")
+async def delete_user_profile(current_user = Depends(get_current_user)):
+    """Delete user profile"""
+    result = await db.user_profiles.delete_one({"uid": current_user['uid']})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    
+    return {"message": "Profile deleted successfully"}
+
+# Protected route example
+@api_router.get("/protected")
+async def protected_route(current_user = Depends(get_current_user)):
+    return {
+        "message": f"Hello {current_user.get('name', current_user['email'])}!",
+        "uid": current_user['uid'],
+        "email": current_user['email']
+    }
 
 # Include the router in the main app
 app.include_router(api_router)

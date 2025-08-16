@@ -178,14 +178,29 @@ export default function Login() {
           </View>
 
           {biometricEnabled && (
-            <TouchableOpacity 
-              style={styles.biometricButton} 
-              onPress={handleBiometricLogin}
-              disabled={loading}
-            >
-              <Ionicons name="finger-print" size={24} color="#007AFF" />
-              <Text style={styles.biometricButtonText}>Use Biometric</Text>
-            </TouchableOpacity>
+            <View style={styles.biometricButton}>
+              <button
+                onClick={handleBiometricLogin}
+                disabled={loading}
+                style={{
+                  width: '100%',
+                  backgroundColor: '#1C1C1C',
+                  color: '#007AFF',
+                  border: 'none',
+                  borderRadius: 12,
+                  padding: 16,
+                  fontSize: 16,
+                  fontWeight: '600',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Ionicons name="finger-print" size={24} color="#007AFF" style={{ marginRight: 8 }} />
+                Use Biometric
+              </button>
+            </View>
           )}
 
           <View style={styles.signupContainer}>

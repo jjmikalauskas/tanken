@@ -17,6 +17,7 @@ export default function Profile() {
   const { user } = useAuth();
 
   const handleSignOut = () => {
+    console.log('🚪 Sign Out button clicked! 12:57');
     Alert.alert(
       'Sign Out',
       'Are you sure you want to sign out?',
@@ -26,10 +27,14 @@ export default function Profile() {
           text: 'Sign Out',
           style: 'destructive',
           onPress: async () => {
+            console.log('🚪 User confirmed sign out');
             try {
+              console.log('🚪 Calling Firebase signOut...');
               await signOut();
+              console.log('🚪 Sign out successful, navigating to login');
               router.replace('/auth/login');
             } catch (error) {
+              console.error('🚪 Sign out error:', error);
               Alert.alert('Error', 'Failed to sign out');
             }
           },

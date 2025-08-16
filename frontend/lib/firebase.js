@@ -7,7 +7,8 @@ import {
   signInWithEmailAndPassword,
   signOut,
   sendPasswordResetEmail,
-  updateProfile
+  updateProfile,
+  connectAuthEmulator
 } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
@@ -36,6 +37,14 @@ try {
 } catch (error) {
   // Auth already initialized
   auth = getAuth(app);
+}
+
+// Disable reCAPTCHA for web development
+if (typeof window !== 'undefined') {
+  // Add reCAPTCHA configuration to disable it
+  window.recaptchaVerifier = null;
+  auth.settings = auth.settings || {};
+  auth.settings.appVerificationDisabledForTesting = true;
 }
 
 export { auth };

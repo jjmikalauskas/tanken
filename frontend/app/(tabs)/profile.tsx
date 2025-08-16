@@ -9,7 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import { useAuth } from '../../contexts/AuthContext';
-import { signOut } from '../lib/firebase';
+import { signOut } from '../../lib/firebase';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 

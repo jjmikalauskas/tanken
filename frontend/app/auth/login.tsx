@@ -50,22 +50,30 @@ export default function Login() {
   };
 
   const handleBiometricLogin = async () => {
+    console.log('🔒 Biometric login button clicked! 12:54');
     try {
       const success = await authenticateWithBiometric();
+      console.log('🔒 Biometric authentication result:', success);
+      
       if (success) {
         // Get stored credentials for biometric login
         const storedEmail = await AsyncStorage.getItem('biometricEmail');
         const storedPassword = await AsyncStorage.getItem('biometricPassword');
         
+        console.log('🔒 Stored credentials found:', !!storedEmail, !!storedPassword);
+        
         if (storedEmail && storedPassword) {
           setLoading(true);
+          console.log('🔒 Attempting signin with stored credentials');
           await signInWithEmailAndPassword(storedEmail, storedPassword);
+          console.log('🔒 Biometric login successful, navigating to home');
           router.replace('/(tabs)/home');
         } else {
           Alert.alert('Error', 'No stored credentials found. Please login with password first.');
         }
       }
     } catch (error) {
+      console.error('🔒 Biometric login error:', error);
       Alert.alert('Login Failed', error.message);
     } finally {
       setLoading(false);
@@ -73,26 +81,39 @@ export default function Login() {
   };
 
   const handleLogin = async () => {
+    console.log('🔑 Login button clicked! 12:54');
+    console.log('🔑 Login form data:', { email: email || 'empty', password: password ? '***' : 'empty' });
+    
     if (!email || !password) {
+      console.log('🔑 Validation failed: Missing email or password');
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
 
     setLoading(true);
+    console.log('🔑 Starting login process...');
+    
     try {
+      console.log('🔑 Calling signInWithEmailAndPassword...');
       await signInWithEmailAndPassword(email, password);
+      
+      console.log('🔑 Login successful!');
       
       // Store credentials for biometric login if enabled
       if (biometricEnabled) {
+        console.log('🔑 Storing credentials for biometric login');
         await AsyncStorage.setItem('biometricEmail', email);
         await AsyncStorage.setItem('biometricPassword', password);
       }
       
+      console.log('🔑 Navigating to home page');
       router.replace('/(tabs)/home');
     } catch (error) {
+      console.error('🔑 Login error:', error);
       Alert.alert('Login Failed', error.message);
     } finally {
       setLoading(false);
+      console.log('🔑 Login process completed');
     }
   };
 

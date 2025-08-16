@@ -10,7 +10,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { router } from 'expo-router';
-import { sendPasswordResetEmail } from '../lib/firebase';
+import { sendPasswordResetEmail } from '../../lib/firebase';
 import { Ionicons } from '@expo/vector-icons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 

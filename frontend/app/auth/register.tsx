@@ -62,14 +62,21 @@ export default function Register() {
   };
 
   const handleRegister = async () => {
+    console.log('Register button clicked!');
+    console.log('Form data:', formData);
+    
     if (!validateForm()) return;
 
     setLoading(true);
     try {
       const { firstName, lastName, email, password } = formData;
       
+      console.log('Attempting to create user with email:', email);
+      
       // Create user account
       const userCredential = await createUserWithEmailAndPassword(email, password);
+      
+      console.log('User created successfully:', userCredential.user.uid);
       
       // Update profile with name
       await updateProfile(userCredential.user, {
@@ -95,6 +102,7 @@ export default function Register() {
       // Navigate to main app
       router.replace('/(tabs)/home');
     } catch (error) {
+      console.error('Registration error:', error);
       Alert.alert('Registration Failed', error.message);
     } finally {
       setLoading(false);

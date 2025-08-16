@@ -36,28 +36,35 @@ export default function Register() {
 
   const validateForm = () => {
     const { firstName, lastName, email, phone, address, password, confirmPassword } = formData;
+    
+    console.log('Validating form with data:', { firstName, lastName, email, phone, address, password: password ? '***' : '', confirmPassword: confirmPassword ? '***' : '' });
 
     if (!firstName || !lastName || !email || !phone || !address || !password || !confirmPassword) {
+      console.log('Validation failed: Missing fields');
       Alert.alert('Error', 'Please fill in all fields');
       return false;
     }
 
     if (password !== confirmPassword) {
+      console.log('Validation failed: Passwords do not match');
       Alert.alert('Error', 'Passwords do not match');
       return false;
     }
 
     if (password.length < 6) {
+      console.log('Validation failed: Password too short');
       Alert.alert('Error', 'Password must be at least 6 characters');
       return false;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
+      console.log('Validation failed: Invalid email format');
       Alert.alert('Error', 'Please enter a valid email address');
       return false;
     }
 
+    console.log('Form validation passed!');
     return true;
   };
 

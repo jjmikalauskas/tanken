@@ -87,16 +87,18 @@ export default function Register() {
   };
 
   const handleRegister = async () => {
-    console.log('Register button clicked! 12:43');
-    console.log('Form data:', formData);
+    console.log('📝 Register button clicked! 12:55');
+    console.log('📝 Form data:', formData);
     
     if (!validateForm()) return;
 
     setLoading(true);
+    console.log('📝 Starting registration process...');
+    
     try {
       const { firstName, lastName, email, password } = formData;
       
-      console.log('Attempting to create user with email:', email);
+      console.log('📝 Attempting to create user with email:', email);
       
       // Try to bypass reCAPTCHA by setting test mode
       try {
@@ -113,23 +115,27 @@ export default function Register() {
           }
         }
       } catch (e) {
-        console.log('reCAPTCHA bypass attempt:', e);
+        console.log('📝 reCAPTCHA bypass attempt:', e);
       }
       
       // Create user account
+      console.log('📝 Calling createUserWithEmailAndPassword...');
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       
-      console.log('User created successfully:', userCredential.user.uid);
+      console.log('📝 User created successfully:', userCredential.user.uid);
       
       // Update profile with name
+      console.log('📝 Updating profile with display name...');
       await updateProfile(userCredential.user, {
         displayName: `${firstName} ${lastName}`,
       });
 
-      console.log('Profile updated successfully');
+      console.log('📝 Profile updated successfully');
 
       // Ask about biometric authentication
       const isSupported = await checkBiometricSupport();
+      console.log('📝 Biometric support check:', isSupported);
+      
       if (isSupported) {
         Alert.alert(
           'Enable Biometric Login?',
@@ -145,10 +151,10 @@ export default function Register() {
       }
 
       // Navigate to main app
-      console.log('Navigating to home page');
+      console.log('📝 Navigating to home page');
       router.replace('/(tabs)/home');
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error('📝 Registration error:', error);
       
       // If it's a reCAPTCHA error, show specific message
       if (error.code === 'auth/captcha-check-failed' || error.message.includes('reCAPTCHA')) {
@@ -158,6 +164,7 @@ export default function Register() {
       }
     } finally {
       setLoading(false);
+      console.log('📝 Registration process completed');
     }
   };
 

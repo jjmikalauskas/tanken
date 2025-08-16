@@ -125,7 +125,7 @@ export default function Login() {
         extraScrollHeight={20}
       >
         <View style={styles.header}>
-          <Text style={styles.title}>Welcome Back 1:09 PM</Text>
+          <Text style={styles.title}>Welcome Back 1:11 PM NUCLEAR</Text>
           <Text style={styles.subtitle}>Sign in to your account</Text>
         </View>
 

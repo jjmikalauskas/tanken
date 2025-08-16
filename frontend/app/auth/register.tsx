@@ -10,7 +10,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { router } from 'expo-router';
-import { createUserWithEmailAndPassword, updateProfile } from '../lib/firebase';
+import { createUserWithEmailAndPassword, updateProfile } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';

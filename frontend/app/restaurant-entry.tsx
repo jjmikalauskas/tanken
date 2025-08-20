@@ -193,6 +193,8 @@ export default function RestaurantEntry() {
                 zipcode: '',
                 primaryPhone: '',
                 websiteUrl: '',
+                menuUrl: '',
+                menuComments: '',
                 gmName: '',
                 gmPhone: '',
                 secondaryPhone: '',

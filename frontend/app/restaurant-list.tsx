@@ -7,6 +7,7 @@ import {
   ScrollView,
   ActivityIndicator,
   TouchableOpacity,
+  TextInput,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -14,23 +15,53 @@ import { router } from 'expo-router';
 export default function RestaurantList() {
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [sortBy, setSortBy] = useState('created_at');
+  const [sortOrder, setSortOrder] = useState('desc');
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     fetchRestaurants();
-  }, []);
+  }, [sortBy, sortOrder]);
 
   const fetchRestaurants = async () => {
     try {
-      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/restaurants`);
+      setLoading(true);
+      const params = new URLSearchParams({
+        sort_by: sortBy,
+        order: sortOrder
+      });
+      
+      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/restaurants?${params}`);
       const data = await response.json();
       setRestaurants(data.restaurants || []);
-      console.log('📋 Loaded restaurants:', data.restaurants?.length || 0);
+      console.log(`📋 Loaded ${data.restaurants?.length || 0} restaurants, sorted by ${sortBy} ${sortOrder}`);
     } catch (error) {
       console.error('Error fetching restaurants:', error);
     } finally {
       setLoading(false);
     }
   };
+
+  const toggleSort = (field) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc');
+    } else {
+      setSortBy(field);
+      setSortOrder('desc');
+    }
+  };
+
+  const filteredRestaurants = restaurants.filter(restaurant => {
+    if (!searchTerm) return true;
+    
+    const term = searchTerm.toLowerCase();
+    return (
+      restaurant.restaurant_name?.toLowerCase().includes(term) ||
+      restaurant.city?.toLowerCase().includes(term) ||
+      restaurant.state?.toLowerCase().includes(term) ||
+      restaurant.gm_name?.toLowerCase().includes(term)
+    );
+  });
 
   if (loading) {
     return (
@@ -52,16 +83,54 @@ export default function RestaurantList() {
         >
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.title}>Restaurant Database</Text>
-        <Text style={styles.subtitle}>({restaurants.length} restaurants)</Text>
+        <View style={styles.headerContent}>
+          <Text style={styles.title}>Restaurant Database</Text>
+          <Text style={styles.subtitle}>({filteredRestaurants.length} restaurants)</Text>
+        </View>
+      </View>
+
+      {/* Search Bar */}
+      <View style={styles.searchContainer}>
+        <Ionicons name="search" size={20} color="#666" style={styles.searchIcon} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search restaurants, cities, or managers..."
+          placeholderTextColor="#666"
+          value={searchTerm}
+          onChangeText={setSearchTerm}
+        />
+      </View>
+
+      {/* Sort Controls */}
+      <View style={styles.sortContainer}>
+        <Text style={styles.sortLabel}>Sort by:</Text>
+        <TouchableOpacity 
+          style={[styles.sortButton, sortBy === 'created_at' && styles.activeSortButton]}
+          onPress={() => toggleSort('created_at')}
+        >
+          <Text style={[styles.sortButtonText, sortBy === 'created_at' && styles.activeSortButtonText]}>
+            Date {sortBy === 'created_at' && (sortOrder === 'desc' ? '↓' : '↑')}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={[styles.sortButton, sortBy === 'restaurant_name' && styles.activeSortButton]}
+          onPress={() => toggleSort('restaurant_name')}
+        >
+          <Text style={[styles.sortButtonText, sortBy === 'restaurant_name' && styles.activeSortButtonText]}>
+            Name {sortBy === 'restaurant_name' && (sortOrder === 'desc' ? '↓' : '↑')}
+          </Text>
+        </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.scrollView}>
-        {restaurants.map((restaurant, index) => (
-          <View key={restaurant._id || index} style={styles.restaurantCard}>
+        {filteredRestaurants.map((restaurant, index) => (
+          <View key={restaurant.id || index} style={styles.restaurantCard}>
             <View style={styles.restaurantHeader}>
               <Ionicons name="restaurant" size={24} color="#007AFF" />
-              <Text style={styles.restaurantName}>{restaurant.restaurant_name}</Text>
+              <View style={styles.restaurantTitleContainer}>
+                <Text style={styles.restaurantName}>{restaurant.restaurant_name}</Text>
+                <Text style={styles.createdBy}>Added by: {restaurant.created_by || 'unknown'}</Text>
+              </View>
             </View>
             
             <View style={styles.restaurantDetails}>
@@ -88,6 +157,9 @@ export default function RestaurantList() {
                 <View style={styles.detailRow}>
                   <Ionicons name="person-outline" size={16} color="#666" />
                   <Text style={styles.detailText}>GM: {restaurant.gm_name}</Text>
+                  {restaurant.gm_phone && (
+                    <Text style={styles.detailText}> ({restaurant.gm_phone})</Text>
+                  )}
                 </View>
               )}
 
@@ -105,16 +177,25 @@ export default function RestaurantList() {
 
               <Text style={styles.timestamp}>
                 Added: {new Date(restaurant.created_at).toLocaleDateString()} at {new Date(restaurant.created_at).toLocaleTimeString()}
+                {restaurant.updated_at !== restaurant.created_at && (
+                  <Text style={styles.timestampUpdate}>
+                    {'\n'}Updated: {new Date(restaurant.updated_at).toLocaleDateString()} at {new Date(restaurant.updated_at).toLocaleTimeString()}
+                  </Text>
+                )}
               </Text>
             </View>
           </View>
         ))}
 
-        {restaurants.length === 0 && (
+        {filteredRestaurants.length === 0 && !loading && (
           <View style={styles.emptyState}>
             <Ionicons name="restaurant-outline" size={64} color="#666" />
-            <Text style={styles.emptyText}>No restaurants found</Text>
-            <Text style={styles.emptySubtext}>Add some restaurants to see them here</Text>
+            <Text style={styles.emptyText}>
+              {searchTerm ? 'No restaurants found matching your search' : 'No restaurants found'}
+            </Text>
+            <Text style={styles.emptySubtext}>
+              {searchTerm ? 'Try a different search term' : 'Add some restaurants to see them here'}
+            </Text>
           </View>
         )}
       </ScrollView>
@@ -146,17 +227,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   header: {
+    flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingTop: 20,
     paddingBottom: 16,
-    position: 'relative',
   },
   backButton: {
-    position: 'absolute',
-    left: 20,
-    top: 20,
     padding: 8,
+    marginRight: 16,
+  },
+  headerContent: {
+    flex: 1,
+    alignItems: 'center',
   },
   title: {
     fontSize: 24,
@@ -167,6 +250,53 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 16,
     color: '#666',
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1C1C1C',
+    marginHorizontal: 20,
+    marginBottom: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  searchIcon: {
+    marginRight: 12,
+  },
+  searchInput: {
+    flex: 1,
+    color: '#fff',
+    fontSize: 16,
+    paddingVertical: 12,
+  },
+  sortContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    marginBottom: 16,
+    gap: 12,
+  },
+  sortLabel: {
+    color: '#666',
+    fontSize: 14,
+  },
+  sortButton: {
+    backgroundColor: '#1C1C1C',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  activeSortButton: {
+    backgroundColor: '#007AFF',
+  },
+  sortButtonText: {
+    color: '#666',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  activeSortButtonText: {
+    color: '#fff',
   },
   scrollView: {
     flex: 1,
@@ -183,11 +313,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
   },
+  restaurantTitleContainer: {
+    marginLeft: 8,
+    flex: 1,
+  },
   restaurantName: {
     fontSize: 18,
     fontWeight: '600',
     color: '#fff',
-    marginLeft: 8,
+  },
+  createdBy: {
+    fontSize: 12,
+    color: '#007AFF',
+    marginTop: 2,
   },
   restaurantDetails: {
     marginLeft: 32,
@@ -225,6 +363,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 8,
   },
+  timestampUpdate: {
+    color: '#888',
+    fontSize: 11,
+  },
   emptyState: {
     alignItems: 'center',
     paddingVertical: 60,
@@ -234,11 +376,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '500',
     marginTop: 16,
+    textAlign: 'center',
   },
   emptySubtext: {
     color: '#666',
     fontSize: 14,
     marginTop: 8,
+    textAlign: 'center',
   },
   addButton: {
     flexDirection: 'row',

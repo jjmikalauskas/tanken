@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for Firebase Authentication System
-Tests all API endpoints including authentication, user profiles, and protected routes.
+Backend API Testing for Firestore Restaurant Data Entry System
+Tests all API endpoints for restaurant CRUD operations, admin functionality, and health checks.
+No authentication required - system migrated from MongoDB to Firestore.
 """
 
 import requests
@@ -11,8 +12,18 @@ import os
 from datetime import datetime
 import uuid
 
-# Backend URL from environment
-BACKEND_URL = "http://localhost:8001/api"
+# Get backend URL from frontend environment
+def get_backend_url():
+    try:
+        with open('/app/frontend/.env', 'r') as f:
+            for line in f:
+                if line.startswith('EXPO_PUBLIC_BACKEND_URL='):
+                    return line.split('=', 1)[1].strip() + '/api'
+    except:
+        pass
+    return "http://localhost:8001/api"
+
+BACKEND_URL = get_backend_url()
 
 class FirebaseBackendTester:
     def __init__(self):

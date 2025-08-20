@@ -55,6 +55,8 @@ class RestaurantCreate(BaseModel):
     zipcode: str
     primaryPhone: str
     websiteUrl: Optional[str] = None
+    menuUrl: Optional[str] = None
+    menuComments: Optional[str] = None
     gmName: Optional[str] = None
     gmPhone: Optional[str] = None
     secondaryPhone: Optional[str] = None

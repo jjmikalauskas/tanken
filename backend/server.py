@@ -219,6 +219,76 @@ async def delete_user_profile(current_user = Depends(get_current_user)):
     
     return {"message": "Profile deleted successfully"}
 
+# Restaurant Routes
+@api_router.post("/restaurants")
+async def create_restaurant(restaurant_data: RestaurantCreate):
+    """Create a new restaurant entry"""
+    try:
+        # Convert frontend camelCase to backend snake_case for storage
+        restaurant_dict = {
+            "restaurant_name": restaurant_data.restaurantName,
+            "street_address": restaurant_data.streetAddress,
+            "city": restaurant_data.city,
+            "state": restaurant_data.state,
+            "zipcode": restaurant_data.zipcode,
+            "primary_phone": restaurant_data.primaryPhone,
+            "website_url": restaurant_data.websiteUrl,
+            "gm_name": restaurant_data.gmName,
+            "gm_phone": restaurant_data.gmPhone,
+            "secondary_phone": restaurant_data.secondaryPhone,
+            "third_phone": restaurant_data.thirdPhone,
+            "doordash_url": restaurant_data.doordashUrl,
+            "uber_eats_url": restaurant_data.uberEatsUrl,
+            "grubhub_url": restaurant_data.grubhubUrl,
+            "notes": restaurant_data.notes,
+            "restaurant_key": restaurant_data.restaurantKey,
+            "created_at": restaurant_data.createdAt,
+            "updated_at": restaurant_data.updatedAt,
+        }
+        
+        # Insert into MongoDB
+        result = await db.restaurants.insert_one(restaurant_dict)
+        
+        return {
+            "success": True,
+            "id": str(result.inserted_id),
+            "restaurant_key": restaurant_data.restaurantKey,
+            "message": f"Restaurant '{restaurant_data.restaurantName}' saved successfully"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error saving restaurant: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to save restaurant: {str(e)}")
+
+@api_router.get("/restaurants")
+async def get_restaurants():
+    """Get all restaurants"""
+    try:
+        restaurants = await db.restaurants.find().to_list(1000)
+        # Convert ObjectId to string for JSON serialization
+        for restaurant in restaurants:
+            restaurant["_id"] = str(restaurant["_id"])
+        return {"restaurants": restaurants, "count": len(restaurants)}
+    except Exception as e:
+        logger.error(f"Error fetching restaurants: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch restaurants: {str(e)}")
+
+@api_router.get("/restaurants/{restaurant_key}")
+async def get_restaurant_by_key(restaurant_key: str):
+    """Get restaurant by key"""
+    try:
+        restaurant = await db.restaurants.find_one({"restaurant_key": restaurant_key})
+        if not restaurant:
+            raise HTTPException(status_code=404, detail="Restaurant not found")
+        
+        restaurant["_id"] = str(restaurant["_id"])
+        return restaurant
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching restaurant: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch restaurant: {str(e)}")
+
 # Protected route example
 @api_router.get("/protected")
 async def protected_route(current_user = Depends(get_current_user)):

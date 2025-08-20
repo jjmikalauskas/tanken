@@ -46,6 +46,30 @@ export default function RestaurantEntry() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  // Validation functions
+  const validatePhone = (phone: string) => {
+    if (!phone) return true; // Optional fields
+    // US phone format: (xxx) xxx-xxxx or xxx-xxx-xxxx or xxxxxxxxxx
+    const phoneRegex = /^(\(\d{3}\)\s?|\d{3}[-.]?)\d{3}[-.]?\d{4}$/;
+    return phoneRegex.test(phone.replace(/\s/g, ''));
+  };
+
+  const validateUrl = (url: string) => {
+    if (!url) return true; // Optional fields
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const validateZipCode = (zip: string) => {
+    // US zip format: 12345 or 12345-6789
+    const zipRegex = /^\d{5}(-\d{4})?$/;
+    return zipRegex.test(zip);
+  };
+
   const generateRestaurantKey = () => {
     const { restaurantName, streetAddress, zipcode } = formData;
     // Clean and format: RestaurantName-StreetAddress-Zipcode

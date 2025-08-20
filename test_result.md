@@ -105,7 +105,7 @@
 user_problem_statement: Migrate restaurant data entry application from MongoDB to Firestore, remove authentication requirements, and implement basic user tracking with hardcoded user "data-entry1".
 
 backend:
-  - task: "Basic API Health Check"
+  - task: "Basic Health Check Endpoints"
     implemented: true
     working: true
     file: "backend/server.py"
@@ -115,9 +115,12 @@ backend:
     status_history:
         - working: true
           agent: "testing"
-          comment: "GET /api/ endpoint working correctly, returns expected 'Hello World' message"
+          comment: "GET /api/ endpoint working correctly, returns expected 'Hello World - Firestore Edition' message"
+        - working: true
+          agent: "testing"
+          comment: "GET /api/health endpoint working correctly with Firestore connection verification and user tracking"
 
-  - task: "Status Check Endpoints"
+  - task: "Restaurant CRUD Operations"
     implemented: true
     working: true
     file: "backend/server.py"
@@ -127,9 +130,15 @@ backend:
     status_history:
         - working: true
           agent: "testing"
-          comment: "Both POST /api/status and GET /api/status endpoints working correctly. Data persistence to MongoDB confirmed."
+          comment: "POST /api/restaurants working correctly - restaurant creation with proper user tracking (data-entry1)"
+        - working: true
+          agent: "testing"
+          comment: "GET /api/restaurants working correctly - restaurant listing with sorting functionality"
+        - working: true
+          agent: "testing"
+          comment: "GET /api/restaurants/{key} working correctly - restaurant retrieval by unique key"
 
-  - task: "Firebase Authentication Token Verification"
+  - task: "Admin Functionality"
     implemented: true
     working: true
     file: "backend/server.py"
@@ -139,9 +148,15 @@ backend:
     status_history:
         - working: true
           agent: "testing"
-          comment: "Authentication middleware correctly rejects requests without tokens (403) and invalid tokens (401). Firebase auth dependency working as expected."
+          comment: "GET /api/admin/restaurants working correctly - admin restaurant list with statistics"
+        - working: true
+          agent: "testing"
+          comment: "GET /api/admin/database-stats working correctly - Firestore database statistics"
+        - working: true
+          agent: "testing"
+          comment: "DELETE /api/admin/restaurants/{id} working correctly - restaurant deletion functionality"
 
-  - task: "User Profile CRUD Operations"
+  - task: "No Authentication Required"
     implemented: true
     working: true
     file: "backend/server.py"
@@ -151,9 +166,12 @@ backend:
     status_history:
         - working: true
           agent: "testing"
-          comment: "All user profile endpoints (POST, GET, PUT, DELETE /api/user/profile) correctly require authentication. Proper 401/403 responses for unauthenticated requests."
+          comment: "All endpoints work without authentication tokens as expected after auth removal"
+        - working: true
+          agent: "testing"
+          comment: "Verified all 5 main endpoints (root, health, restaurants, admin endpoints) work without auth headers"
 
-  - task: "Protected Routes Access Control"
+  - task: "User Tracking with Hardcoded User"
     implemented: true
     working: true
     file: "backend/server.py"
@@ -163,9 +181,12 @@ backend:
     status_history:
         - working: true
           agent: "testing"
-          comment: "GET /api/protected endpoint correctly enforces authentication. Proper rejection of unauthenticated and invalid token requests."
+          comment: "Hardcoded user 'data-entry1' correctly tracked in restaurant creation"
+        - working: true
+          agent: "testing"
+          comment: "User 'data-entry1' correctly shown in health check and admin endpoints"
 
-  - task: "MongoDB Integration"
+  - task: "Firestore Integration"
     implemented: true
     working: true
     file: "backend/server.py"
@@ -175,7 +196,10 @@ backend:
     status_history:
         - working: true
           agent: "testing"
-          comment: "MongoDB integration working correctly. Data persistence verified through status check creation and retrieval. Database operations successful."
+          comment: "Firestore integration working correctly - data persistence verified through restaurant CRUD operations"
+        - working: true
+          agent: "testing"
+          comment: "Database connection verified through health check endpoint"
 
   - task: "Error Handling and Validation"
     implemented: true
@@ -187,7 +211,10 @@ backend:
     status_history:
         - working: true
           agent: "testing"
-          comment: "FastAPI validation working correctly. Proper 422 responses for invalid JSON and missing required fields."
+          comment: "FastAPI validation working correctly for restaurant endpoints"
+        - working: true
+          agent: "testing"
+          comment: "Proper 404 responses for non-existent restaurant keys and 422 for validation errors"
 
 frontend:
   - task: "Frontend Testing"

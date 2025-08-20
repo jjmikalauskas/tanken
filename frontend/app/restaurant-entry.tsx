@@ -327,6 +327,33 @@ export default function RestaurantEntry() {
             />
           </View>
 
+          <View style={styles.inputContainer}>
+            <Ionicons name="restaurant-outline" size={20} color="#666" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Menu URL"
+              placeholderTextColor="#666"
+              value={formData.menuUrl}
+              onChangeText={(value) => updateFormData('menuUrl', value)}
+              keyboardType="url"
+              autoCapitalize="none"
+            />
+          </View>
+
+          <View style={[styles.inputContainer, styles.notesContainer]}>
+            <Ionicons name="clipboard-outline" size={20} color="#666" style={[styles.inputIcon, styles.notesIcon]} />
+            <TextInput
+              style={[styles.input, styles.notesInput]}
+              placeholder="Menu comments (cuisine type, specialties, etc.)"
+              placeholderTextColor="#666"
+              value={formData.menuComments}
+              onChangeText={(value) => updateFormData('menuComments', value)}
+              multiline={true}
+              numberOfLines={2}
+              textAlignVertical="top"
+            />
+          </View>
+
           {/* Management Section */}
           <Text style={styles.sectionTitle}>Management & Contact</Text>
           

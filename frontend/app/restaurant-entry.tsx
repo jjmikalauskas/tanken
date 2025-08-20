@@ -24,6 +24,8 @@ export default function RestaurantEntry() {
     zipcode: '75409',
     primaryPhone: '(214) 555-0123',
     websiteUrl: 'https://tycoonflats.com',
+    menuUrl: 'https://tycoonflats.com/menu',
+    menuComments: 'Full bar, steakhouse menu, daily specials available',
     
     // Management
     gmName: 'John Smith',

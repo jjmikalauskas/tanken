@@ -262,7 +262,14 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   backButton: {
+    padding: 8,
     marginRight: 16,
+  },
+  headerContent: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  refreshButton: {
     padding: 8,
   },
   title: {
@@ -270,137 +277,133 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#fff',
   },
-  tabContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: 20,
-    marginBottom: 20,
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    backgroundColor: '#1C1C1C',
-    borderRadius: 8,
-    marginHorizontal: 4,
-    alignItems: 'center',
-  },
-  activeTab: {
-    backgroundColor: '#007AFF',
-  },
-  tabText: {
-    color: '#666',
+  subtitle: {
     fontSize: 14,
-    fontWeight: '500',
+    color: '#666',
+    marginTop: 2,
   },
-  activeTabText: {
-    color: '#fff',
-  },
-  content: {
+  scrollView: {
     flex: 1,
     paddingHorizontal: 20,
   },
-  statsRow: {
-    flexDirection: 'row',
-    marginBottom: 24,
-  },
-  statCard: {
-    flex: 1,
-    backgroundColor: '#1C1C1C',
-    borderRadius: 12,
-    padding: 16,
-    marginHorizontal: 4,
-    alignItems: 'center',
-  },
-  statNumber: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#007AFF',
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: '#666',
+  statsContainer: {
+    marginBottom: 32,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '600',
     color: '#fff',
     marginBottom: 16,
   },
-  restaurantCard: {
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  statCard: {
     backgroundColor: '#1C1C1C',
     borderRadius: 12,
     padding: 16,
-    marginBottom: 16,
+    alignItems: 'center',
+    flex: 1,
+    minWidth: 120,
   },
-  restaurantHeader: {
+  statNumber: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginTop: 8,
+  },
+  statLabel: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 4,
+    textAlign: 'center',
+  },
+  currentUser: {
+    backgroundColor: '#1C1C1C',
+    borderRadius: 8,
+    padding: 12,
+    marginTop: 16,
+    alignItems: 'center',
+  },
+  currentUserText: {
+    color: '#007AFF',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  detailsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    gap: 16,
+    marginTop: 16,
+  },
+  detailColumn: {
+    flex: 1,
+    backgroundColor: '#1C1C1C',
+    borderRadius: 8,
+    padding: 12,
+  },
+  detailTitle: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  detailItem: {
+    color: '#ccc',
+    fontSize: 12,
+    marginBottom: 4,
+  },
+  detailMore: {
+    color: '#666',
+    fontSize: 12,
+    fontStyle: 'italic',
+  },
+  managementContainer: {
+    marginBottom: 100,
+  },
+  restaurantItem: {
+    flexDirection: 'row',
+    backgroundColor: '#1C1C1C',
+    borderRadius: 12,
+    padding: 16,
     marginBottom: 12,
+    alignItems: 'center',
   },
   restaurantInfo: {
     flex: 1,
   },
   restaurantName: {
-    fontSize: 18,
-    fontWeight: '600',
     color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
     marginBottom: 4,
-  },
-  restaurantLocation: {
-    fontSize: 14,
-    color: '#007AFF',
-  },
-  deleteButton: {
-    padding: 8,
-    backgroundColor: '#FF3B3020',
-    borderRadius: 8,
   },
   restaurantDetails: {
-    marginLeft: 0,
-  },
-  detailRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  detailText: {
     color: '#ccc',
     fontSize: 14,
-    marginLeft: 8,
-    flex: 1,
-  },
-  keyContainer: {
-    backgroundColor: '#333',
-    borderRadius: 8,
-    padding: 12,
-    marginTop: 8,
-    marginBottom: 8,
-  },
-  keyLabel: {
-    color: '#666',
-    fontSize: 12,
     marginBottom: 4,
   },
-  keyValue: {
+  restaurantKey: {
     color: '#007AFF',
-    fontSize: 14,
+    fontSize: 12,
     fontFamily: 'monospace',
+    marginBottom: 4,
   },
-  timestampRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 8,
-  },
-  timestamp: {
+  restaurantDate: {
     color: '#666',
     fontSize: 12,
   },
-  dbId: {
-    color: '#666',
-    fontSize: 10,
-    fontFamily: 'monospace',
+  deleteButton: {
+    backgroundColor: '#DC3545',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  deletingButton: {
+    opacity: 0.6,
   },
   emptyState: {
     alignItems: 'center',
@@ -411,83 +414,43 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '500',
     marginTop: 16,
+    textAlign: 'center',
   },
-  card: {
-    backgroundColor: '#1C1C1C',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
-  },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#fff',
-    marginBottom: 12,
-  },
-  cardSubtitle: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 12,
-  },
-  collectionRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  collectionName: {
-    color: '#fff',
-    fontSize: 14,
-  },
-  collectionCount: {
-    color: '#007AFF',
-    fontSize: 12,
-  },
-  cityGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  cityTag: {
-    backgroundColor: '#007AFF20',
-    borderRadius: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    marginRight: 8,
-    marginBottom: 8,
-  },
-  cityText: {
-    color: '#007AFF',
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  infoLabel: {
+  emptySubtext: {
     color: '#666',
     fontSize: 14,
+    marginTop: 8,
+    textAlign: 'center',
   },
-  infoValue: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  fab: {
+  actionButtons: {
+    flexDirection: 'row',
     position: 'absolute',
-    right: 20,
     bottom: 20,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#007AFF',
+    left: 20,
+    right: 20,
+    gap: 12,
+  },
+  actionButton: {
+    flex: 1,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: 8,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
+    backgroundColor: '#007AFF',
+    paddingVertical: 16,
+    borderRadius: 12,
+    gap: 8,
+  },
+  secondaryActionButton: {
+    backgroundColor: 'transparent',
+    borderColor: '#007AFF',
+    borderWidth: 2,
+  },
+  actionButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  secondaryActionButtonText: {
+    color: '#007AFF',
   },
 });

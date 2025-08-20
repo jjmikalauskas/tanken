@@ -90,6 +90,46 @@ class UserProfileUpdate(BaseModel):
     phone_number: Optional[str] = None
     address: Optional[str] = None
 
+class Restaurant(BaseModel):
+    restaurant_name: str
+    street_address: str
+    city: str
+    state: str
+    zipcode: str
+    primary_phone: str
+    website_url: Optional[str] = None
+    gm_name: Optional[str] = None
+    gm_phone: Optional[str] = None
+    secondary_phone: Optional[str] = None
+    third_phone: Optional[str] = None
+    doordash_url: Optional[str] = None
+    uber_eats_url: Optional[str] = None
+    grubhub_url: Optional[str] = None
+    notes: Optional[str] = None
+    restaurant_key: str
+    created_at: str
+    updated_at: str
+
+class RestaurantCreate(BaseModel):
+    restaurantName: str
+    streetAddress: str
+    city: str
+    state: str
+    zipcode: str
+    primaryPhone: str
+    websiteUrl: Optional[str] = None
+    gmName: Optional[str] = None
+    gmPhone: Optional[str] = None
+    secondaryPhone: Optional[str] = None
+    thirdPhone: Optional[str] = None
+    doordashUrl: Optional[str] = None
+    uberEatsUrl: Optional[str] = None
+    grubhubUrl: Optional[str] = None
+    notes: Optional[str] = None
+    restaurantKey: str
+    createdAt: str
+    updatedAt: str
+
 # Routes
 @api_router.get("/")
 async def root():

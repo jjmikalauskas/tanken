@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: Test the Firebase authentication backend API with comprehensive testing of all endpoints, authentication flows, and database integration.
+user_problem_statement: Migrate restaurant data entry application from MongoDB to Firestore, remove authentication requirements, and implement basic user tracking with hardcoded user "data-entry1".
 
 backend:
   - task: "Basic API Health Check"

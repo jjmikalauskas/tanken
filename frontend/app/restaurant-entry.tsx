@@ -81,14 +81,57 @@ export default function RestaurantEntry() {
   const validateForm = () => {
     const { restaurantName, streetAddress, city, state, zipcode, primaryPhone } = formData;
     
+    // Check required fields
     if (!restaurantName || !streetAddress || !city || !state || !zipcode || !primaryPhone) {
       Alert.alert('Error', 'Please fill in all required fields:\n- Restaurant Name\n- Street Address\n- City\n- State\n- Zipcode\n- Primary Phone');
       return false;
     }
 
-    // Basic zipcode validation
-    if (!/^\d{5}(-\d{4})?$/.test(zipcode)) {
-      Alert.alert('Error', 'Please enter a valid zipcode (12345 or 12345-6789)');
+    // Validate zipcode
+    if (!validateZipCode(zipcode)) {
+      Alert.alert('Invalid Zipcode', 'Please enter a valid zipcode (12345 or 12345-6789)');
+      return false;
+    }
+
+    // Validate primary phone (required)
+    if (!validatePhone(primaryPhone)) {
+      Alert.alert('Invalid Phone', 'Please enter a valid phone number for Primary Phone\nExample: (214) 555-0123');
+      return false;
+    }
+
+    // Validate optional phone numbers
+    if (formData.gmPhone && !validatePhone(formData.gmPhone)) {
+      Alert.alert('Invalid Phone', 'Please enter a valid phone number for GM Phone\nExample: (214) 555-0123');
+      return false;
+    }
+    if (formData.secondaryPhone && !validatePhone(formData.secondaryPhone)) {
+      Alert.alert('Invalid Phone', 'Please enter a valid phone number for Secondary Phone\nExample: (214) 555-0123');
+      return false;
+    }
+    if (formData.thirdPhone && !validatePhone(formData.thirdPhone)) {
+      Alert.alert('Invalid Phone', 'Please enter a valid phone number for Third Phone\nExample: (214) 555-0123');
+      return false;
+    }
+
+    // Validate URLs
+    if (formData.websiteUrl && !validateUrl(formData.websiteUrl)) {
+      Alert.alert('Invalid URL', 'Please enter a valid Website URL\nExample: https://restaurant.com');
+      return false;
+    }
+    if (formData.menuUrl && !validateUrl(formData.menuUrl)) {
+      Alert.alert('Invalid URL', 'Please enter a valid Menu URL\nExample: https://restaurant.com/menu');
+      return false;
+    }
+    if (formData.doordashUrl && !validateUrl(formData.doordashUrl)) {
+      Alert.alert('Invalid URL', 'Please enter a valid DoorDash URL');
+      return false;
+    }
+    if (formData.uberEatsUrl && !validateUrl(formData.uberEatsUrl)) {
+      Alert.alert('Invalid URL', 'Please enter a valid Uber Eats URL');
+      return false;
+    }
+    if (formData.grubhubUrl && !validateUrl(formData.grubhubUrl)) {
+      Alert.alert('Invalid URL', 'Please enter a valid Grubhub URL');
       return false;
     }
 

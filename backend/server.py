@@ -289,6 +289,79 @@ async def get_restaurant_by_key(restaurant_key: str):
         logger.error(f"Error fetching restaurant: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to fetch restaurant: {str(e)}")
 
+# MongoDB Admin Routes
+@api_router.get("/admin/restaurants")
+async def admin_get_restaurants():
+    """Admin endpoint to get all restaurants with full details"""
+    try:
+        restaurants = await db.restaurants.find().to_list(1000)
+        
+        # Convert ObjectId to string and add stats
+        for restaurant in restaurants:
+            restaurant["_id"] = str(restaurant["_id"])
+        
+        # Get some stats
+        cities = set([r.get("city", "Unknown") for r in restaurants])
+        states = set([r.get("state", "Unknown") for r in restaurants])
+        
+        return {
+            "restaurants": restaurants,
+            "stats": {
+                "total_count": len(restaurants),
+                "cities_covered": len(cities),
+                "states_covered": len(states),
+                "cities": list(cities),
+                "states": list(states)
+            }
+        }
+        
+    except Exception as e:
+        logger.error(f"Error fetching admin restaurants: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch restaurants: {str(e)}")
+
+@api_router.get("/admin/database-stats")
+async def admin_database_stats():
+    """Get database statistics"""
+    try:
+        # Get collection names
+        collections = await db.list_collection_names()
+        
+        # Get counts for each collection
+        collection_stats = {}
+        for collection_name in collections:
+            count = await db[collection_name].count_documents({})
+            collection_stats[collection_name] = count
+        
+        return {
+            "collections": collections,
+            "collection_stats": collection_stats,
+            "total_collections": len(collections)
+        }
+        
+    except Exception as e:
+        logger.error(f"Error fetching database stats: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch database stats: {str(e)}")
+
+@api_router.delete("/admin/restaurants/{restaurant_id}")
+async def admin_delete_restaurant(restaurant_id: str):
+    """Delete a restaurant (admin only)"""
+    try:
+        from bson import ObjectId
+        
+        # Convert string ID to ObjectId
+        object_id = ObjectId(restaurant_id)
+        
+        result = await db.restaurants.delete_one({"_id": object_id})
+        
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Restaurant not found")
+        
+        return {"success": True, "message": f"Restaurant {restaurant_id} deleted successfully"}
+        
+    except Exception as e:
+        logger.error(f"Error deleting restaurant: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to delete restaurant: {str(e)}")
+
 # Protected route example
 @api_router.get("/protected")
 async def protected_route(current_user = Depends(get_current_user)):

@@ -1,58 +1,54 @@
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  ScrollView,
-  ActivityIndicator,
-  TouchableOpacity,
-  Alert,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+interface Restaurant {
+  id: string;
+  restaurant_name: string;
+  street_address: string;
+  city: string;
+  state: string;
+  zipcode: string;
+  primary_phone: string;
+  restaurant_key: string;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+}
 
-export default function MongoAdmin() {
-  const [restaurants, setRestaurants] = useState([]);
-  const [stats, setStats] = useState(null);
-  const [dbStats, setDbStats] = useState(null);
+interface AdminStats {
+  total_count: number;
+  cities_covered: number;
+  states_covered: number;
+  cities: string[];
+  states: string[];
+  created_by_users: string[];
+  current_user: string;
+}
+
+export default function AdminScreen() {
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('restaurants');
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchData();
+    fetchAdminData();
   }, []);
 
-  const fetchData = async () => {
+  const fetchAdminData = async () => {
     try {
       setLoading(true);
+      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/admin/restaurants`);
+      const data = await response.json();
       
-      // Fetch restaurant data and stats
-      const restaurantResponse = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/admin/restaurants`);
-      const restaurantData = await restaurantResponse.json();
-      
-      // Fetch database stats
-      const dbResponse = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/admin/database-stats`);
-      const dbData = await dbResponse.json();
-      
-      setRestaurants(restaurantData.restaurants || []);
-      setStats(restaurantData.stats || {});
-      setDbStats(dbData || {});
-      
-      console.log('📊 Admin data loaded:', {
-        restaurants: restaurantData.restaurants?.length,
-        collections: dbData.collections?.length
-      });
-      
+      setRestaurants(data.restaurants || []);
+      setStats(data.stats || null);
+      console.log('📊 Admin data loaded:', data.stats);
     } catch (error) {
       console.error('Error fetching admin data:', error);
-      Alert.alert('Error', 'Failed to load admin data');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDeleteRestaurant = (restaurantId: string, restaurantName: string) => {
+  const handleDeleteRestaurant = async (restaurantId: string, restaurantName: string) => {
     Alert.alert(
       'Delete Restaurant',
       `Are you sure you want to delete "${restaurantName}"? This action cannot be undone.`,
@@ -63,19 +59,24 @@ export default function MongoAdmin() {
           style: 'destructive',
           onPress: async () => {
             try {
-              const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/admin/restaurants/${restaurantId}`, {
-                method: 'DELETE'
-              });
+              setDeleting(restaurantId);
+              
+              const response = await fetch(
+                `${process.env.EXPO_PUBLIC_BACKEND_URL}/api/admin/restaurants/${restaurantId}`,
+                { method: 'DELETE' }
+              );
               
               if (response.ok) {
                 Alert.alert('Success', 'Restaurant deleted successfully');
-                fetchData(); // Refresh data
+                fetchAdminData(); // Refresh data
               } else {
-                throw new Error('Failed to delete restaurant');
+                Alert.alert('Error', 'Failed to delete restaurant');
               }
             } catch (error) {
-              console.error('Delete error:', error);
+              console.error('Error deleting restaurant:', error);
               Alert.alert('Error', 'Failed to delete restaurant');
+            } finally {
+              setDeleting(null);
             }
           }
         }
@@ -88,7 +89,7 @@ export default function MongoAdmin() {
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#007AFF" />
-          <Text style={styles.loadingText}>Loading MongoDB Admin...</Text>
+          <Text style={styles.loadingText}>Loading admin dashboard...</Text>
         </View>
       </SafeAreaView>
     );
@@ -96,7 +97,6 @@ export default function MongoAdmin() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity 
           style={styles.backButton}
@@ -104,176 +104,137 @@ export default function MongoAdmin() {
         >
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.title}>🗄️ MongoDB Admin</Text>
-      </View>
-
-      {/* Tab Navigation */}
-      <View style={styles.tabContainer}>
+        <View style={styles.headerContent}>
+          <Text style={styles.title}>Database Admin</Text>
+          <Text style={styles.subtitle}>Firestore Management</Text>
+        </View>
         <TouchableOpacity 
-          style={[styles.tab, activeTab === 'restaurants' && styles.activeTab]}
-          onPress={() => setActiveTab('restaurants')}
+          style={styles.refreshButton}
+          onPress={fetchAdminData}
         >
-          <Text style={[styles.tabText, activeTab === 'restaurants' && styles.activeTabText]}>
-            Restaurants
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={[styles.tab, activeTab === 'stats' && styles.activeTab]}
-          onPress={() => setActiveTab('stats')}
-        >
-          <Text style={[styles.tabText, activeTab === 'stats' && styles.activeTabText]}>
-            Database Stats
-          </Text>
+          <Ionicons name="refresh" size={24} color="#007AFF" />
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.content}>
-        {activeTab === 'restaurants' && (
-          <View>
-            {/* Quick Stats */}
-            <View style={styles.statsRow}>
-              <View style={styles.statCard}>
-                <Text style={styles.statNumber}>{stats?.total_count || 0}</Text>
-                <Text style={styles.statLabel}>Total Restaurants</Text>
-              </View>
-              <View style={styles.statCard}>
-                <Text style={styles.statNumber}>{stats?.cities_covered || 0}</Text>
-                <Text style={styles.statLabel}>Cities</Text>
-              </View>
-              <View style={styles.statCard}>
-                <Text style={styles.statNumber}>{stats?.states_covered || 0}</Text>
-                <Text style={styles.statLabel}>States</Text>
-              </View>
-            </View>
-
-            {/* Restaurant List */}
-            <Text style={styles.sectionTitle}>Restaurant Database</Text>
-            
-            {restaurants.map((restaurant, index) => (
-              <View key={restaurant._id} style={styles.restaurantCard}>
-                <View style={styles.restaurantHeader}>
-                  <View style={styles.restaurantInfo}>
-                    <Text style={styles.restaurantName}>{restaurant.restaurant_name}</Text>
-                    <Text style={styles.restaurantLocation}>
-                      {restaurant.city}, {restaurant.state} {restaurant.zipcode}
-                    </Text>
-                  </View>
-                  <TouchableOpacity
-                    style={styles.deleteButton}
-                    onPress={() => handleDeleteRestaurant(restaurant._id, restaurant.restaurant_name)}
-                  >
-                    <Ionicons name="trash-outline" size={20} color="#FF3B30" />
-                  </TouchableOpacity>
-                </View>
-
-                <View style={styles.restaurantDetails}>
-                  <View style={styles.detailRow}>
-                    <Ionicons name="location-outline" size={16} color="#666" />
-                    <Text style={styles.detailText}>{restaurant.street_address}</Text>
-                  </View>
-                  
-                  <View style={styles.detailRow}>
-                    <Ionicons name="call-outline" size={16} color="#666" />
-                    <Text style={styles.detailText}>{restaurant.primary_phone}</Text>
-                  </View>
-                  
-                  {restaurant.website_url && (
-                    <View style={styles.detailRow}>
-                      <Ionicons name="globe-outline" size={16} color="#666" />
-                      <Text style={styles.detailText}>{restaurant.website_url}</Text>
-                    </View>
-                  )}
-                  
-                  {restaurant.gm_name && (
-                    <View style={styles.detailRow}>
-                      <Ionicons name="person-outline" size={16} color="#666" />
-                      <Text style={styles.detailText}>GM: {restaurant.gm_name}</Text>
-                    </View>
-                  )}
-
-                  <View style={styles.keyContainer}>
-                    <Text style={styles.keyLabel}>Restaurant Key:</Text>
-                    <Text style={styles.keyValue}>{restaurant.restaurant_key}</Text>
-                  </View>
-
-                  <View style={styles.timestampRow}>
-                    <Text style={styles.timestamp}>
-                      Created: {new Date(restaurant.created_at).toLocaleDateString()}
-                    </Text>
-                    <Text style={styles.dbId}>ID: {restaurant._id}</Text>
-                  </View>
-                </View>
-              </View>
-            ))}
-
-            {restaurants.length === 0 && (
-              <View style={styles.emptyState}>
-                <Ionicons name="restaurant-outline" size={64} color="#666" />
-                <Text style={styles.emptyText}>No restaurants found</Text>
-              </View>
-            )}
-          </View>
-        )}
-
-        {activeTab === 'stats' && (
-          <View>
+      <ScrollView style={styles.scrollView}>
+        {/* Database Statistics */}
+        {stats && (
+          <View style={styles.statsContainer}>
             <Text style={styles.sectionTitle}>Database Statistics</Text>
             
-            {/* Collection Stats */}
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>Collections</Text>
-              {dbStats?.collections?.map((collection, index) => (
-                <View key={index} style={styles.collectionRow}>
-                  <Text style={styles.collectionName}>📄 {collection}</Text>
-                  <Text style={styles.collectionCount}>
-                    {dbStats.collection_stats?.[collection] || 0} documents
-                  </Text>
-                </View>
-              ))}
+            <View style={styles.statsGrid}>
+              <View style={styles.statCard}>
+                <Ionicons name="restaurant" size={32} color="#007AFF" />
+                <Text style={styles.statNumber}>{stats.total_count}</Text>
+                <Text style={styles.statLabel}>Total Restaurants</Text>
+              </View>
+              
+              <View style={styles.statCard}>
+                <Ionicons name="location" size={32} color="#28A745" />
+                <Text style={styles.statNumber}>{stats.cities_covered}</Text>
+                <Text style={styles.statLabel}>Cities</Text>
+              </View>
+              
+              <View style={styles.statCard}>
+                <Ionicons name="map" size={32} color="#FFC107" />
+                <Text style={styles.statNumber}>{stats.states_covered}</Text>
+                <Text style={styles.statLabel}>States</Text>
+              </View>
+              
+              <View style={styles.statCard}>
+                <Ionicons name="person" size={32} color="#DC3545" />
+                <Text style={styles.statNumber}>{stats.created_by_users.length}</Text>
+                <Text style={styles.statLabel}>Users</Text>
+              </View>
             </View>
 
-            {/* Geographic Distribution */}
-            {stats?.cities && stats.cities.length > 0 && (
-              <View style={styles.card}>
-                <Text style={styles.cardTitle}>Geographic Coverage</Text>
-                <Text style={styles.cardSubtitle}>Cities with Restaurants:</Text>
-                <View style={styles.cityGrid}>
-                  {stats.cities.map((city, index) => (
-                    <View key={index} style={styles.cityTag}>
-                      <Text style={styles.cityText}>{city}</Text>
-                    </View>
-                  ))}
-                </View>
-              </View>
-            )}
+            <View style={styles.currentUser}>
+              <Text style={styles.currentUserText}>Current User: {stats.current_user}</Text>
+            </View>
 
-            {/* Database Info */}
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>Database Information</Text>
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Total Collections:</Text>
-                <Text style={styles.infoValue}>{dbStats?.total_collections || 0}</Text>
+            {/* Cities and States */}
+            <View style={styles.detailsContainer}>
+              <View style={styles.detailColumn}>
+                <Text style={styles.detailTitle}>Cities ({stats.cities.length})</Text>
+                {stats.cities.slice(0, 5).map((city, index) => (
+                  <Text key={index} style={styles.detailItem}>{city}</Text>
+                ))}
+                {stats.cities.length > 5 && (
+                  <Text style={styles.detailMore}>+ {stats.cities.length - 5} more</Text>
+                )}
               </View>
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Database Type:</Text>
-                <Text style={styles.infoValue}>MongoDB</Text>
-              </View>
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Environment:</Text>
-                <Text style={styles.infoValue}>Development</Text>
+              
+              <View style={styles.detailColumn}>
+                <Text style={styles.detailTitle}>States ({stats.states.length})</Text>
+                {stats.states.slice(0, 5).map((state, index) => (
+                  <Text key={index} style={styles.detailItem}>{state}</Text>
+                ))}
+                {stats.states.length > 5 && (
+                  <Text style={styles.detailMore}>+ {stats.states.length - 5} more</Text>
+                )}
               </View>
             </View>
           </View>
         )}
+
+        {/* Restaurant Management */}
+        <View style={styles.managementContainer}>
+          <Text style={styles.sectionTitle}>Restaurant Management</Text>
+          
+          {restaurants.map((restaurant, index) => (
+            <View key={restaurant.id || index} style={styles.restaurantItem}>
+              <View style={styles.restaurantInfo}>
+                <Text style={styles.restaurantName}>{restaurant.restaurant_name}</Text>
+                <Text style={styles.restaurantDetails}>
+                  {restaurant.city}, {restaurant.state} • {restaurant.created_by}
+                </Text>
+                <Text style={styles.restaurantKey}>{restaurant.restaurant_key}</Text>
+                <Text style={styles.restaurantDate}>
+                  {new Date(restaurant.created_at).toLocaleDateString()}
+                </Text>
+              </View>
+              
+              <TouchableOpacity
+                style={[styles.deleteButton, deleting === restaurant.id && styles.deletingButton]}
+                onPress={() => handleDeleteRestaurant(restaurant.id, restaurant.restaurant_name)}
+                disabled={deleting === restaurant.id}
+              >
+                {deleting === restaurant.id ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <Ionicons name="trash" size={20} color="#fff" />
+                )}
+              </TouchableOpacity>
+            </View>
+          ))}
+
+          {restaurants.length === 0 && (
+            <View style={styles.emptyState}>
+              <Ionicons name="folder-open-outline" size={64} color="#666" />
+              <Text style={styles.emptyText}>No restaurants in database</Text>
+              <Text style={styles.emptySubtext}>Add some restaurants to manage them here</Text>
+            </View>
+          )}
+        </View>
       </ScrollView>
 
-      {/* Add Restaurant FAB */}
-      <TouchableOpacity 
-        style={styles.fab}
-        onPress={() => router.push('/restaurant-entry')}
-      >
-        <Ionicons name="add" size={24} color="#fff" />
-      </TouchableOpacity>
+      <View style={styles.actionButtons}>
+        <TouchableOpacity 
+          style={styles.actionButton}
+          onPress={() => router.push('/restaurant-entry')}
+        >
+          <Ionicons name="add" size={20} color="#fff" />
+          <Text style={styles.actionButtonText}>Add Restaurant</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={[styles.actionButton, styles.secondaryActionButton]}
+          onPress={() => router.push('/restaurant-list')}
+        >
+          <Ionicons name="list" size={20} color="#007AFF" />
+          <Text style={[styles.actionButtonText, styles.secondaryActionButtonText]}>View List</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 }

@@ -152,10 +152,18 @@ export default function RestaurantEntry() {
         enableOnAndroid={true}
         extraScrollHeight={20}
       >
-        <View style={styles.header}>
-          <Ionicons name="restaurant" size={32} color="#007AFF" />
-          <Text style={styles.title}>Add Restaurant</Text>
-          <Text style={styles.subtitle}>Enter restaurant details for our database</Text>
+        <View style={styles.headerContainer}>
+          <TouchableOpacity 
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <Ionicons name="arrow-back" size={24} color="#fff" />
+          </TouchableOpacity>
+          <View style={styles.header}>
+            <Ionicons name="restaurant" size={32} color="#007AFF" />
+            <Text style={styles.title}>Add Restaurant</Text>
+            <Text style={styles.subtitle}>Enter restaurant details for our database</Text>
+          </View>
         </View>
 
         <View style={styles.form}>

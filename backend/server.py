@@ -1,22 +1,20 @@
-from fastapi import FastAPI, APIRouter, Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from dotenv import load_dotenv
+from fastapi import FastAPI, APIRouter, HTTPException, status
 from starlette.middleware.cors import CORSMiddleware
-from motor.motor_asyncio import AsyncIOMotorClient
-import os
-import logging
+from dotenv import load_dotenv
 from pathlib import Path
 from pydantic import BaseModel, Field
 from typing import List, Optional
-import uuid
+import os
+import logging
 from datetime import datetime
 import firebase_admin
-from firebase_admin import credentials, auth
+from firebase_admin import credentials, firestore
 
+# Load environment variables
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# Firebase Admin initialization
+# Firebase Admin initialization with service account
 firebase_service_account = {
     "type": "service_account",
     "project_id": "mongoose2-app",
@@ -36,80 +34,19 @@ if not firebase_admin._apps:
     cred = credentials.Certificate(firebase_service_account)
     firebase_admin.initialize_app(cred)
 
-# MongoDB connection
-mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+# Initialize Firestore client
+db = firestore.client()
 
-# Create the main app without a prefix
+# Create the main app
 app = FastAPI()
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
-# Security
-security = HTTPBearer()
-
-# Firebase auth dependency
-async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    try:
-        # Verify the Firebase ID token
-        decoded_token = auth.verify_id_token(credentials.credentials)
-        return decoded_token
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+# Hardcoded user for tracking
+CURRENT_USER = "data-entry1"
 
 # Define Models
-class StatusCheck(BaseModel):
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
-
-class StatusCheckCreate(BaseModel):
-    client_name: str
-
-class UserProfile(BaseModel):
-    uid: str
-    email: str
-    display_name: Optional[str] = None
-    phone_number: Optional[str] = None
-    address: Optional[str] = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
-
-class UserProfileCreate(BaseModel):
-    phone_number: Optional[str] = None
-    address: Optional[str] = None
-
-class UserProfileUpdate(BaseModel):
-    display_name: Optional[str] = None
-    phone_number: Optional[str] = None
-    address: Optional[str] = None
-
-class Restaurant(BaseModel):
-    restaurant_name: str
-    street_address: str
-    city: str
-    state: str
-    zipcode: str
-    primary_phone: str
-    website_url: Optional[str] = None
-    gm_name: Optional[str] = None
-    gm_phone: Optional[str] = None
-    secondary_phone: Optional[str] = None
-    third_phone: Optional[str] = None
-    doordash_url: Optional[str] = None
-    uber_eats_url: Optional[str] = None
-    grubhub_url: Optional[str] = None
-    notes: Optional[str] = None
-    restaurant_key: str
-    created_at: str
-    updated_at: str
-
 class RestaurantCreate(BaseModel):
     restaurantName: str
     streetAddress: str
@@ -130,101 +67,58 @@ class RestaurantCreate(BaseModel):
     createdAt: str
     updatedAt: str
 
+class Restaurant(BaseModel):
+    id: Optional[str] = None
+    restaurant_name: str
+    street_address: str
+    city: str
+    state: str
+    zipcode: str
+    primary_phone: str
+    website_url: Optional[str] = None
+    gm_name: Optional[str] = None
+    gm_phone: Optional[str] = None
+    secondary_phone: Optional[str] = None
+    third_phone: Optional[str] = None
+    doordash_url: Optional[str] = None
+    uber_eats_url: Optional[str] = None
+    grubhub_url: Optional[str] = None
+    notes: Optional[str] = None
+    restaurant_key: str
+    created_at: str
+    updated_at: str
+    created_by: str
+
 # Routes
 @api_router.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "Hello World - Firestore Edition"}
 
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.dict()
-    status_obj = StatusCheck(**status_dict)
-    _ = await db.status_checks.insert_one(status_obj.dict())
-    return status_obj
-
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    status_checks = await db.status_checks.find().to_list(1000)
-    return [StatusCheck(**status_check) for status_check in status_checks]
-
-# User Profile Routes
-@api_router.post("/user/profile", response_model=UserProfile)
-async def create_user_profile(
-    profile_data: UserProfileCreate,
-    current_user = Depends(get_current_user)
-):
-    """Create or update user profile"""
-    user_profile = UserProfile(
-        uid=current_user['uid'],
-        email=current_user['email'],
-        display_name=current_user.get('name'),
-        phone_number=profile_data.phone_number,
-        address=profile_data.address
-    )
-    
-    # Upsert the profile
-    await db.user_profiles.replace_one(
-        {"uid": current_user['uid']},
-        user_profile.dict(),
-        upsert=True
-    )
-    
-    return user_profile
-
-@api_router.get("/user/profile", response_model=UserProfile)
-async def get_user_profile(current_user = Depends(get_current_user)):
-    """Get current user's profile"""
-    profile = await db.user_profiles.find_one({"uid": current_user['uid']})
-    
-    if not profile:
-        # Create a basic profile if it doesn't exist
-        user_profile = UserProfile(
-            uid=current_user['uid'],
-            email=current_user['email'],
-            display_name=current_user.get('name')
-        )
-        await db.user_profiles.insert_one(user_profile.dict())
-        return user_profile
-    
-    return UserProfile(**profile)
-
-@api_router.put("/user/profile", response_model=UserProfile)
-async def update_user_profile(
-    profile_update: UserProfileUpdate,
-    current_user = Depends(get_current_user)
-):
-    """Update user profile"""
-    update_data = {k: v for k, v in profile_update.dict().items() if v is not None}
-    update_data['updated_at'] = datetime.utcnow()
-    
-    result = await db.user_profiles.update_one(
-        {"uid": current_user['uid']},
-        {"$set": update_data}
-    )
-    
-    if result.matched_count == 0:
-        raise HTTPException(status_code=404, detail="Profile not found")
-    
-    # Return updated profile
-    profile = await db.user_profiles.find_one({"uid": current_user['uid']})
-    return UserProfile(**profile)
-
-@api_router.delete("/user/profile")
-async def delete_user_profile(current_user = Depends(get_current_user)):
-    """Delete user profile"""
-    result = await db.user_profiles.delete_one({"uid": current_user['uid']})
-    
-    if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="Profile not found")
-    
-    return {"message": "Profile deleted successfully"}
+@api_router.get("/health")
+async def health_check():
+    """Health check endpoint"""
+    try:
+        # Try to access Firestore to verify connection
+        test_doc = db.collection('health_check').document('test').get()
+        return {
+            "status": "healthy",
+            "database": "firestore",
+            "user": CURRENT_USER,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        return {
+            "status": "unhealthy",
+            "error": str(e),
+            "timestamp": datetime.utcnow().isoformat()
+        }
 
 # Restaurant Routes
 @api_router.post("/restaurants")
 async def create_restaurant(restaurant_data: RestaurantCreate):
     """Create a new restaurant entry"""
     try:
-        # Convert frontend camelCase to backend snake_case for storage
+        # Prepare restaurant data for Firestore storage
         restaurant_dict = {
             "restaurant_name": restaurant_data.restaurantName,
             "street_address": restaurant_data.streetAddress,
@@ -244,16 +138,21 @@ async def create_restaurant(restaurant_data: RestaurantCreate):
             "restaurant_key": restaurant_data.restaurantKey,
             "created_at": restaurant_data.createdAt,
             "updated_at": restaurant_data.updatedAt,
+            "created_by": CURRENT_USER,  # Track user who created the entry
         }
         
-        # Insert into MongoDB
-        result = await db.restaurants.insert_one(restaurant_dict)
+        # Save to Firestore
+        doc_ref = db.collection('restaurants').add(restaurant_dict)
+        document_id = doc_ref[1].id
+        
+        logger.info(f"Restaurant saved to Firestore with ID: {document_id}")
         
         return {
             "success": True,
-            "id": str(result.inserted_id),
+            "id": document_id,
             "restaurant_key": restaurant_data.restaurantKey,
-            "message": f"Restaurant '{restaurant_data.restaurantName}' saved successfully"
+            "message": f"Restaurant '{restaurant_data.restaurantName}' saved successfully to Firestore",
+            "created_by": CURRENT_USER
         }
         
     except Exception as e:
@@ -261,48 +160,82 @@ async def create_restaurant(restaurant_data: RestaurantCreate):
         raise HTTPException(status_code=500, detail=f"Failed to save restaurant: {str(e)}")
 
 @api_router.get("/restaurants")
-async def get_restaurants():
-    """Get all restaurants"""
+async def get_restaurants(sort_by: str = "created_at", order: str = "desc"):
+    """Get all restaurants with optional sorting"""
     try:
-        restaurants = await db.restaurants.find().to_list(1000)
-        # Convert ObjectId to string for JSON serialization
-        for restaurant in restaurants:
-            restaurant["_id"] = str(restaurant["_id"])
-        return {"restaurants": restaurants, "count": len(restaurants)}
+        # Query Firestore
+        restaurants_ref = db.collection('restaurants')
+        
+        # Apply sorting
+        if sort_by in ["created_at", "updated_at", "restaurant_name"]:
+            if order == "asc":
+                restaurants_ref = restaurants_ref.order_by(sort_by)
+            else:
+                restaurants_ref = restaurants_ref.order_by(sort_by, direction=firestore.Query.DESCENDING)
+        
+        restaurants = []
+        docs = restaurants_ref.stream()
+        
+        for doc in docs:
+            restaurant_data = doc.to_dict()
+            restaurant_data['id'] = doc.id
+            restaurants.append(restaurant_data)
+        
+        logger.info(f"Retrieved {len(restaurants)} restaurants from Firestore")
+        
+        return {
+            "restaurants": restaurants,
+            "count": len(restaurants),
+            "sorted_by": sort_by,
+            "order": order
+        }
+        
     except Exception as e:
         logger.error(f"Error fetching restaurants: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to fetch restaurants: {str(e)}")
 
 @api_router.get("/restaurants/{restaurant_key}")
 async def get_restaurant_by_key(restaurant_key: str):
-    """Get restaurant by key"""
+    """Get restaurant by unique key"""
     try:
-        restaurant = await db.restaurants.find_one({"restaurant_key": restaurant_key})
-        if not restaurant:
+        # Query Firestore by restaurant_key
+        restaurants_ref = db.collection('restaurants')
+        query = restaurants_ref.where('restaurant_key', '==', restaurant_key)
+        docs = list(query.stream())
+        
+        if not docs:
             raise HTTPException(status_code=404, detail="Restaurant not found")
         
-        restaurant["_id"] = str(restaurant["_id"])
-        return restaurant
+        # Return the first match (should be unique)
+        doc = docs[0]
+        restaurant_data = doc.to_dict()
+        restaurant_data['id'] = doc.id
+        
+        return restaurant_data
+        
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error fetching restaurant: {str(e)}")
+        logger.error(f"Error fetching restaurant by key: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to fetch restaurant: {str(e)}")
 
-# MongoDB Admin Routes
+# Admin Routes
 @api_router.get("/admin/restaurants")
 async def admin_get_restaurants():
-    """Admin endpoint to get all restaurants with full details"""
+    """Admin endpoint to get all restaurants with statistics"""
     try:
-        restaurants = await db.restaurants.find().to_list(1000)
+        restaurants = []
+        docs = db.collection('restaurants').stream()
         
-        # Convert ObjectId to string and add stats
-        for restaurant in restaurants:
-            restaurant["_id"] = str(restaurant["_id"])
+        for doc in docs:
+            restaurant_data = doc.to_dict()
+            restaurant_data['id'] = doc.id
+            restaurants.append(restaurant_data)
         
-        # Get some stats
+        # Generate statistics
         cities = set([r.get("city", "Unknown") for r in restaurants])
         states = set([r.get("state", "Unknown") for r in restaurants])
+        created_by_users = set([r.get("created_by", "Unknown") for r in restaurants])
         
         return {
             "restaurants": restaurants,
@@ -311,7 +244,9 @@ async def admin_get_restaurants():
                 "cities_covered": len(cities),
                 "states_covered": len(states),
                 "cities": list(cities),
-                "states": list(states)
+                "states": list(states),
+                "created_by_users": list(created_by_users),
+                "current_user": CURRENT_USER
             }
         }
         
@@ -321,21 +256,19 @@ async def admin_get_restaurants():
 
 @api_router.get("/admin/database-stats")
 async def admin_database_stats():
-    """Get database statistics"""
+    """Get Firestore database statistics"""
     try:
-        # Get collection names
-        collections = await db.list_collection_names()
-        
-        # Get counts for each collection
-        collection_stats = {}
-        for collection_name in collections:
-            count = await db[collection_name].count_documents({})
-            collection_stats[collection_name] = count
+        # Count documents in restaurants collection
+        restaurants_count = len(list(db.collection('restaurants').stream()))
         
         return {
-            "collections": collections,
-            "collection_stats": collection_stats,
-            "total_collections": len(collections)
+            "collections": ["restaurants"],
+            "collection_stats": {
+                "restaurants": restaurants_count
+            },
+            "total_collections": 1,
+            "database_type": "firestore",
+            "current_user": CURRENT_USER
         }
         
     except Exception as e:
@@ -346,15 +279,8 @@ async def admin_database_stats():
 async def admin_delete_restaurant(restaurant_id: str):
     """Delete a restaurant (admin only)"""
     try:
-        from bson import ObjectId
-        
-        # Convert string ID to ObjectId
-        object_id = ObjectId(restaurant_id)
-        
-        result = await db.restaurants.delete_one({"_id": object_id})
-        
-        if result.deleted_count == 0:
-            raise HTTPException(status_code=404, detail="Restaurant not found")
+        # Delete from Firestore
+        db.collection('restaurants').document(restaurant_id).delete()
         
         return {"success": True, "message": f"Restaurant {restaurant_id} deleted successfully"}
         
@@ -362,18 +288,10 @@ async def admin_delete_restaurant(restaurant_id: str):
         logger.error(f"Error deleting restaurant: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to delete restaurant: {str(e)}")
 
-# Protected route example
-@api_router.get("/protected")
-async def protected_route(current_user = Depends(get_current_user)):
-    return {
-        "message": f"Hello {current_user.get('name', current_user['email'])}!",
-        "uid": current_user['uid'],
-        "email": current_user['email']
-    }
-
 # Include the router in the main app
 app.include_router(api_router)
 
+# Configure CORS
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
@@ -389,6 +307,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-@app.on_event("shutdown")
-async def shutdown_db_client():
-    client.close()
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8001)

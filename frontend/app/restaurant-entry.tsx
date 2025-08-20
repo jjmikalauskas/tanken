@@ -410,10 +410,20 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 20,
   },
-  header: {
-    alignItems: 'center',
+  headerContainer: {
+    position: 'relative',
     marginBottom: 32,
     marginTop: 20,
+  },
+  backButton: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    zIndex: 1,
+    padding: 8,
+  },
+  header: {
+    alignItems: 'center',
   },
   title: {
     fontSize: 28,

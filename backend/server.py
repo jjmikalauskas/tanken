@@ -55,6 +55,8 @@ class RestaurantCreate(BaseModel):
     zipcode: str
     primaryPhone: str
     websiteUrl: Optional[str] = None
+    menuUrl: Optional[str] = None
+    menuComments: Optional[str] = None
     gmName: Optional[str] = None
     gmPhone: Optional[str] = None
     secondaryPhone: Optional[str] = None
@@ -127,6 +129,8 @@ async def create_restaurant(restaurant_data: RestaurantCreate):
             "zipcode": restaurant_data.zipcode,
             "primary_phone": restaurant_data.primaryPhone,
             "website_url": restaurant_data.websiteUrl,
+            "menu_url": restaurant_data.menuUrl,
+            "menu_comments": restaurant_data.menuComments,
             "gm_name": restaurant_data.gmName,
             "gm_phone": restaurant_data.gmPhone,
             "secondary_phone": restaurant_data.secondaryPhone,

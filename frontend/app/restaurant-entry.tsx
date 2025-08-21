@@ -7,8 +7,10 @@ import {
   Alert,
   SafeAreaView,
   ActivityIndicator,
+  TouchableOpacity,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 export default function RestaurantEntry() {
@@ -22,6 +24,8 @@ export default function RestaurantEntry() {
     zipcode: '75409',
     primaryPhone: '(214) 555-0123',
     websiteUrl: 'https://tycoonflats.com',
+    menuUrl: 'https://tycoonflats.com/menu',
+    menuComments: 'Full bar, steakhouse menu, daily specials available',
     
     // Management
     gmName: 'John Smith',
@@ -42,6 +46,30 @@ export default function RestaurantEntry() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  // Validation functions
+  const validatePhone = (phone: string) => {
+    if (!phone) return true; // Optional fields
+    // US phone format: (xxx) xxx-xxxx or xxx-xxx-xxxx or xxxxxxxxxx
+    const phoneRegex = /^(\(\d{3}\)\s?|\d{3}[-.]?)\d{3}[-.]?\d{4}$/;
+    return phoneRegex.test(phone.replace(/\s/g, ''));
+  };
+
+  const validateUrl = (url: string) => {
+    if (!url) return true; // Optional fields
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const validateZipCode = (zip: string) => {
+    // US zip format: 12345 or 12345-6789
+    const zipRegex = /^\d{5}(-\d{4})?$/;
+    return zipRegex.test(zip);
+  };
+
   const generateRestaurantKey = () => {
     const { restaurantName, streetAddress, zipcode } = formData;
     // Clean and format: RestaurantName-StreetAddress-Zipcode
@@ -53,14 +81,57 @@ export default function RestaurantEntry() {
   const validateForm = () => {
     const { restaurantName, streetAddress, city, state, zipcode, primaryPhone } = formData;
     
+    // Check required fields
     if (!restaurantName || !streetAddress || !city || !state || !zipcode || !primaryPhone) {
       Alert.alert('Error', 'Please fill in all required fields:\n- Restaurant Name\n- Street Address\n- City\n- State\n- Zipcode\n- Primary Phone');
       return false;
     }
 
-    // Basic zipcode validation
-    if (!/^\d{5}(-\d{4})?$/.test(zipcode)) {
-      Alert.alert('Error', 'Please enter a valid zipcode (12345 or 12345-6789)');
+    // Validate zipcode
+    if (!validateZipCode(zipcode)) {
+      Alert.alert('Invalid Zipcode', 'Please enter a valid zipcode (12345 or 12345-6789)');
+      return false;
+    }
+
+    // Validate primary phone (required)
+    if (!validatePhone(primaryPhone)) {
+      Alert.alert('Invalid Phone', 'Please enter a valid phone number for Primary Phone\nExample: (214) 555-0123');
+      return false;
+    }
+
+    // Validate optional phone numbers
+    if (formData.gmPhone && !validatePhone(formData.gmPhone)) {
+      Alert.alert('Invalid Phone', 'Please enter a valid phone number for GM Phone\nExample: (214) 555-0123');
+      return false;
+    }
+    if (formData.secondaryPhone && !validatePhone(formData.secondaryPhone)) {
+      Alert.alert('Invalid Phone', 'Please enter a valid phone number for Secondary Phone\nExample: (214) 555-0123');
+      return false;
+    }
+    if (formData.thirdPhone && !validatePhone(formData.thirdPhone)) {
+      Alert.alert('Invalid Phone', 'Please enter a valid phone number for Third Phone\nExample: (214) 555-0123');
+      return false;
+    }
+
+    // Validate URLs
+    if (formData.websiteUrl && !validateUrl(formData.websiteUrl)) {
+      Alert.alert('Invalid URL', 'Please enter a valid Website URL\nExample: https://restaurant.com');
+      return false;
+    }
+    if (formData.menuUrl && !validateUrl(formData.menuUrl)) {
+      Alert.alert('Invalid URL', 'Please enter a valid Menu URL\nExample: https://restaurant.com/menu');
+      return false;
+    }
+    if (formData.doordashUrl && !validateUrl(formData.doordashUrl)) {
+      Alert.alert('Invalid URL', 'Please enter a valid DoorDash URL');
+      return false;
+    }
+    if (formData.uberEatsUrl && !validateUrl(formData.uberEatsUrl)) {
+      Alert.alert('Invalid URL', 'Please enter a valid Uber Eats URL');
+      return false;
+    }
+    if (formData.grubhubUrl && !validateUrl(formData.grubhubUrl)) {
+      Alert.alert('Invalid URL', 'Please enter a valid Grubhub URL');
       return false;
     }
 
@@ -122,6 +193,8 @@ export default function RestaurantEntry() {
                 zipcode: '',
                 primaryPhone: '',
                 websiteUrl: '',
+                menuUrl: '',
+                menuComments: '',
                 gmName: '',
                 gmPhone: '',
                 secondaryPhone: '',
@@ -152,10 +225,18 @@ export default function RestaurantEntry() {
         enableOnAndroid={true}
         extraScrollHeight={20}
       >
-        <View style={styles.header}>
-          <Ionicons name="restaurant" size={32} color="#007AFF" />
-          <Text style={styles.title}>Add Restaurant</Text>
-          <Text style={styles.subtitle}>Enter restaurant details for our database</Text>
+        <View style={styles.headerContainer}>
+          <TouchableOpacity 
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <Ionicons name="arrow-back" size={24} color="#fff" />
+          </TouchableOpacity>
+          <View style={styles.header}>
+            <Ionicons name="restaurant" size={32} color="#007AFF" />
+            <Text style={styles.title}>Add Restaurant</Text>
+            <Text style={styles.subtitle}>Enter restaurant details for our database</Text>
+          </View>
         </View>
 
         <View style={styles.form}>
@@ -245,6 +326,33 @@ export default function RestaurantEntry() {
               onChangeText={(value) => updateFormData('websiteUrl', value)}
               keyboardType="url"
               autoCapitalize="none"
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Ionicons name="restaurant-outline" size={20} color="#666" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Menu URL"
+              placeholderTextColor="#666"
+              value={formData.menuUrl}
+              onChangeText={(value) => updateFormData('menuUrl', value)}
+              keyboardType="url"
+              autoCapitalize="none"
+            />
+          </View>
+
+          <View style={[styles.inputContainer, styles.notesContainer]}>
+            <Ionicons name="clipboard-outline" size={20} color="#666" style={[styles.inputIcon, styles.notesIcon]} />
+            <TextInput
+              style={[styles.input, styles.notesInput]}
+              placeholder="Menu comments (cuisine type, specialties, etc.)"
+              placeholderTextColor="#666"
+              value={formData.menuComments}
+              onChangeText={(value) => updateFormData('menuComments', value)}
+              multiline={true}
+              numberOfLines={2}
+              textAlignVertical="top"
             />
           </View>
 
@@ -400,10 +508,20 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 20,
   },
-  header: {
-    alignItems: 'center',
+  headerContainer: {
+    position: 'relative',
     marginBottom: 32,
     marginTop: 20,
+  },
+  backButton: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    zIndex: 1,
+    padding: 8,
+  },
+  header: {
+    alignItems: 'center',
   },
   title: {
     fontSize: 28,
@@ -424,8 +542,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     color: '#007AFF',
-    marginTop: 24,
-    marginBottom: 16,
+    marginTop: 16,
+    marginBottom: 12,
     paddingLeft: 4,
   },
   row: {

@@ -151,10 +151,29 @@ export default function RestaurantEntry() {
       // Generate unique key
       const restaurantKey = generateRestaurantKey();
       
-      // Prepare data for backend
+      // Prepare data in the format your existing backend expects
       const restaurantData = {
-        ...formData,
-        restaurantKey,
+        name: formData.restaurantName,
+        address: `${formData.streetAddress}, ${formData.city}, ${formData.state} ${formData.zipcode}`,
+        city: formData.city,
+        state: formData.state,
+        zipcode: formData.zipcode,
+        primaryPhone: formData.primaryPhone,
+        websiteUrl: formData.websiteUrl,
+        menuUrl: formData.menuUrl,
+        menuComments: formData.menuComments,
+        gmName: formData.gmName,
+        gmPhone: formData.gmPhone,
+        secondaryPhone: formData.secondaryPhone,
+        thirdPhone: formData.thirdPhone,
+        doordashUrl: formData.doordashUrl,
+        uberEatsUrl: formData.uberEatsUrl,
+        grubhubUrl: formData.grubhubUrl,
+        notes: formData.notes,
+        restaurantName: formData.restaurantName,
+        streetAddress: formData.streetAddress,
+        // Keep the restaurant key for reference
+        restaurantKey: restaurantKey,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };

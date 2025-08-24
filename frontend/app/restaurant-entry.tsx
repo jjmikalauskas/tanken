@@ -513,7 +513,7 @@ export default function RestaurantEntry() {
           {expandedSections.digital && (
             <View style={styles.collapsibleSection}>
               <View style={styles.inputContainer}>
-                <Ionicons name="logo-doordash" size={20} color="#666" style={styles.inputIcon} />
+                <Ionicons name="bicycle-outline" size={20} color="#666" style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
                   placeholder="DoorDash URL (Optional)"

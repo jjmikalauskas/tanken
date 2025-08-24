@@ -702,4 +702,14 @@ const styles = StyleSheet.create({
   collapsibleSection: {
     marginBottom: 16,
   },
+  restaurantIcon: {
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  iconHint: {
+    fontSize: 10,
+    color: '#666',
+    marginTop: 4,
+    textAlign: 'center',
+  },
 });

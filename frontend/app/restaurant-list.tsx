@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { restaurantAPI } from '../services/api';
 
 export default function RestaurantList() {
   const [restaurants, setRestaurants] = useState([]);
@@ -26,15 +27,15 @@ export default function RestaurantList() {
   const fetchRestaurants = async () => {
     try {
       setLoading(true);
-      const params = new URLSearchParams({
+      
+      // Use the centralized API service with clean parameters
+      const data = await restaurantAPI.getAll({
         sort_by: sortBy,
         order: sortOrder
       });
       
-      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/restaurants?${params}`);
-      const data = await response.json();
       setRestaurants(data.restaurants || []);
-      console.log(`📋 Loaded ${data.restaurants?.length || 0} restaurants, sorted by ${sortBy} ${sortOrder}`);
+      console.log(`📋 Loaded ${data.restaurants?.length || 0} restaurants from API service, sorted by ${sortBy} ${sortOrder}`);
     } catch (error) {
       console.error('Error fetching restaurants:', error);
     } finally {

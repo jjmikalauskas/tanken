@@ -12,6 +12,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { restaurantAPI } from '../services/api';
 
 export default function RestaurantEntry() {
   const [loading, setLoading] = useState(false);
@@ -158,22 +159,10 @@ export default function RestaurantEntry() {
         updatedAt: new Date().toISOString(),
       };
 
-      console.log('🏪 Saving to backend with key:', restaurantKey);
+      console.log('🏪 Saving to your existing backend with key:', restaurantKey);
       
-      // Save to our MongoDB backend instead of Firestore
-      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/restaurants`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(restaurantData),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
+      // Use the centralized API service instead of direct fetch
+      const result = await restaurantAPI.create(restaurantData);
       
       console.log('🏪 Restaurant saved successfully:', result);
       

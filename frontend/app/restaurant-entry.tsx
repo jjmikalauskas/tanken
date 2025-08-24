@@ -160,8 +160,8 @@ export default function RestaurantEntry() {
 
       console.log('🏪 Saving to backend with key:', restaurantKey);
       
-      // Save to our MongoDB backend instead of Firestore
-      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/restaurants`, {
+      // Save to your existing backend instead of local backend
+      const response = await fetch(`https://us-central1-mongoose1-app.cloudfunctions.net/api/restaurants/holding`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

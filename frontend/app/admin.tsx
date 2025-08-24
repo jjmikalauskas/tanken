@@ -49,12 +49,34 @@ export default function AdminScreen() {
   const fetchAdminData = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/admin/restaurants`);
+      // For now, just fetch the same data from your existing endpoint
+      // You can add admin endpoints to your existing backend later if needed
+      const response = await fetch(`https://us-central1-mongoose1-app.cloudfunctions.net/api/restaurants/holding`);
       const data = await response.json();
       
       setRestaurants(data.restaurants || []);
-      setStats(data.stats || null);
-      console.log('📊 Admin data loaded:', data.stats);
+      
+      // Generate basic stats from the data
+      const restaurants = data.restaurants || [];
+      const cities = [...new Set(restaurants.map(r => r.city))];
+      const states = [...new Set(restaurants.map(r => r.state))]; 
+      const users = [...new Set(restaurants.map(r => r.created_by || 'data-entry1'))];
+      
+      setStats({
+        total_count: restaurants.length,
+        cities_covered: cities.length,
+        states_covered: states.length,
+        cities: cities,
+        states: states,
+        created_by_users: users,
+        current_user: 'data-entry1'
+      });
+      
+      console.log('📊 Admin data loaded from your existing backend:', {
+        restaurants: restaurants.length,
+        cities: cities.length,
+        states: states.length
+      });
     } catch (error) {
       console.error('Error fetching admin data:', error);
     } finally {

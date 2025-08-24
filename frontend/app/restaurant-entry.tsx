@@ -234,6 +234,7 @@ export default function RestaurantEntry() {
       const result = await restaurantAPI.create(restaurantData);
       
       console.log('🏪 Restaurant saved successfully:', result);
+      console.log('🏪 About to show success alert...');
       
       // Success toast and clear form
       Alert.alert(
@@ -243,6 +244,7 @@ export default function RestaurantEntry() {
           {
             text: 'Add Another',
             onPress: () => {
+              console.log('🏪 "Add Another" pressed - clearing form...');
               // Clear form for next entry
               setFormData({
                 restaurantName: '',
@@ -269,15 +271,21 @@ export default function RestaurantEntry() {
                 management: false,
                 digital: false,
               });
+              console.log('🏪 Form cleared and sections collapsed!');
             }
           },
           {
             text: 'View List',
-            onPress: () => router.push('/restaurant-list'),
+            onPress: () => {
+              console.log('🏪 "View List" pressed - navigating...');
+              router.push('/restaurant-list');
+            },
             style: 'default'
           }
         ]
       );
+      
+      console.log('🏪 Success alert should be showing now...');
       
     } catch (error) {
       console.error('🏪 Error saving restaurant:', error);

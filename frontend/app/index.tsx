@@ -6,7 +6,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { FaUtensils } from 'react-icons/fa';
 import { router } from 'expo-router';
 
 export default function Index() {
@@ -14,7 +14,7 @@ export default function Index() {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <View style={styles.header}>
-          <Ionicons name="restaurant" size={80} color="#007AFF" />
+          <FaUtensils size={80} color="#007AFF" />
           <Text style={styles.title}>Restaurant Data Entry</Text>
           <Text style={styles.subtitle}>Manage restaurant information database</Text>
           <Text style={styles.userInfo}>Current User: data-entry1</Text>
@@ -25,7 +25,7 @@ export default function Index() {
             style={styles.primaryButton}
             onPress={() => router.push('/restaurant-entry')}
           >
-            <Ionicons name="add-circle" size={24} color="#fff" />
+            <Text style={styles.buttonIcon}>➕</Text>
             <Text style={styles.primaryButtonText}>Add New Restaurant</Text>
           </TouchableOpacity>
 
@@ -33,7 +33,7 @@ export default function Index() {
             style={styles.secondaryButton}
             onPress={() => router.push('/restaurant-list')}
           >
-            <Ionicons name="list" size={24} color="#007AFF" />
+            <Text style={styles.buttonIcon}>📋</Text>
             <Text style={styles.secondaryButtonText}>View Restaurant List</Text>
           </TouchableOpacity>
 
@@ -41,7 +41,7 @@ export default function Index() {
             style={styles.secondaryButton}
             onPress={() => router.push('/admin')}
           >
-            <Ionicons name="settings" size={24} color="#007AFF" />
+            <Text style={styles.buttonIcon}>⚙️</Text>
             <Text style={styles.secondaryButtonText}>Database Admin</Text>
           </TouchableOpacity>
         </View>
@@ -124,6 +124,9 @@ const styles = StyleSheet.create({
     color: '#007AFF',
     fontSize: 16,
     fontWeight: '500',
+  },
+  buttonIcon: {
+    fontSize: 20,
   },
   footer: {
     alignItems: 'center',

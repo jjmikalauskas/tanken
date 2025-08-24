@@ -9,7 +9,21 @@ import {
   ActivityIndicator,
   TouchableOpacity,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { 
+  FaUtensils,
+  FaArrowLeft,
+  FaStore,
+  FaMapMarkerAlt,
+  FaPhone,
+  FaGlobe,
+  FaUser,
+  FaClipboard,
+  FaChevronUp,
+  FaChevronDown,
+  FaBicycle,
+  FaCar,
+  FaHamburger
+} from 'react-icons/fa';
 import { router } from 'expo-router';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { restaurantAPI } from '../services/api';
@@ -20,6 +34,7 @@ export default function RestaurantEntry() {
     management: false,
     digital: false,
   });
+
   const [formData, setFormData] = useState({
     // Pre-filled test data for quick testing
     restaurantName: 'Tycoon Flats',
@@ -121,14 +136,6 @@ export default function RestaurantEntry() {
     return zipRegex.test(zip);
   };
 
-  const generateRestaurantKey = () => {
-    const { restaurantName, streetAddress, zipcode } = formData;
-    // Clean and format: RestaurantName-StreetAddress-Zipcode
-    const cleanName = restaurantName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-    const cleanAddress = streetAddress.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-    return `${cleanName}-${cleanAddress}-${zipcode}`;
-  };
-
   const validateForm = () => {
     const { restaurantName, streetAddress, city, state, zipcode, primaryPhone } = formData;
     
@@ -189,18 +196,17 @@ export default function RestaurantEntry() {
     return true;
   };
 
-  const handleSaveRestaurant = async () => {
-    console.log('🏪 Save Restaurant button clicked!');
-    console.log('📝 Form data:', formData);
-    
-    if (!validateForm()) return;
+  const handleSubmit = async () => {
+    if (!validateForm()) {
+      return;
+    }
 
-    setLoading(true);
-    
     try {
-      // Generate unique key
-      const restaurantKey = generateRestaurantKey();
+      setLoading(true);
       
+      // Generate unique key
+      const restaurantKey = `${formData.restaurantName}-${formData.streetAddress}#-${formData.zipcode}`.replace(/\s+/g, '');
+
       // Prepare data in the format your existing backend expects
       const restaurantData = {
         name: formData.restaurantName,
@@ -326,14 +332,14 @@ export default function RestaurantEntry() {
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <Ionicons name="arrow-back" size={24} color="#fff" />
+            <FaArrowLeft size={20} color="#fff" />
           </TouchableOpacity>
           <View style={styles.header}>
             <TouchableOpacity 
               onPress={fillTestData}
               style={styles.restaurantIcon}
             >
-              <Ionicons name="restaurant" size={32} color="#007AFF" />
+              <FaUtensils size={32} color="#007AFF" />
               <Text style={styles.iconHint}>Tap for test data</Text>
             </TouchableOpacity>
             <Text style={styles.title}>Add Restaurant</Text>
@@ -347,7 +353,7 @@ export default function RestaurantEntry() {
           <Text style={styles.sectionTitle}>Basic Information</Text>
           
           <View style={styles.inputContainer}>
-            <Ionicons name="storefront-outline" size={20} color="#666" style={styles.inputIcon} />
+            <FaStore size={20} color="#666" style={styles.inputIcon} />
             <TextInput
               style={styles.input}
               placeholder="Restaurant Name *"
@@ -359,7 +365,7 @@ export default function RestaurantEntry() {
           </View>
 
           <View style={styles.inputContainer}>
-            <Ionicons name="location-outline" size={20} color="#666" style={styles.inputIcon} />
+            <FaMapMarkerAlt size={20} color="#666" style={styles.inputIcon} />
             <TextInput
               style={styles.input}
               placeholder="Street Address *"
@@ -370,9 +376,9 @@ export default function RestaurantEntry() {
             />
           </View>
 
-          <View style={styles.row}>
-            <View style={[styles.inputContainer, { flex: 2, marginRight: 8 }]}>
-              <Ionicons name="business-outline" size={20} color="#666" style={styles.inputIcon} />
+          <View style={styles.rowContainer}>
+            <View style={[styles.inputContainer, styles.flexInput]}>
+              <FaMapMarkerAlt size={20} color="#666" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
                 placeholder="City *"
@@ -382,7 +388,8 @@ export default function RestaurantEntry() {
                 autoCapitalize="words"
               />
             </View>
-            <View style={[styles.inputContainer, { flex: 1, marginHorizontal: 4 }]}>
+
+            <View style={[styles.inputContainer, styles.stateInput]}>
               <TextInput
                 style={styles.input}
                 placeholder="State *"
@@ -393,7 +400,8 @@ export default function RestaurantEntry() {
                 maxLength={2}
               />
             </View>
-            <View style={[styles.inputContainer, { flex: 1, marginLeft: 8 }]}>
+
+            <View style={[styles.inputContainer, styles.zipInput]}>
               <TextInput
                 style={styles.input}
                 placeholder="Zipcode *"
@@ -407,10 +415,10 @@ export default function RestaurantEntry() {
           </View>
 
           <View style={styles.inputContainer}>
-            <Ionicons name="call-outline" size={20} color="#666" style={styles.inputIcon} />
+            <FaPhone size={20} color="#666" style={styles.inputIcon} />
             <TextInput
               style={styles.input}
-              placeholder="Primary Phone *"
+              placeholder="Primary Phone Number *"
               placeholderTextColor="#666"
               value={formData.primaryPhone}
               onChangeText={(value) => updateFormData('primaryPhone', value)}
@@ -419,7 +427,7 @@ export default function RestaurantEntry() {
           </View>
 
           <View style={styles.inputContainer}>
-            <Ionicons name="globe-outline" size={20} color="#666" style={styles.inputIcon} />
+            <FaGlobe size={20} color="#666" style={styles.inputIcon} />
             <TextInput
               style={styles.input}
               placeholder="Website URL"
@@ -432,7 +440,7 @@ export default function RestaurantEntry() {
           </View>
 
           <View style={styles.inputContainer}>
-            <Ionicons name="restaurant-outline" size={20} color="#666" style={styles.inputIcon} />
+            <FaUtensils size={20} color="#666" style={styles.inputIcon} />
             <TextInput
               style={styles.input}
               placeholder="Menu URL"
@@ -445,7 +453,7 @@ export default function RestaurantEntry() {
           </View>
 
           <View style={[styles.inputContainer, styles.notesContainer]}>
-            <Ionicons name="clipboard-outline" size={20} color="#666" style={[styles.inputIcon, styles.notesIcon]} />
+            <FaClipboard size={20} color="#666" style={[styles.inputIcon, styles.notesIcon]} />
             <TextInput
               style={[styles.input, styles.notesInput]}
               placeholder="Menu comments (cuisine type, specialties, etc.)"
@@ -458,24 +466,22 @@ export default function RestaurantEntry() {
             />
           </View>
 
-          {/* Management Section */}
           {/* Management & Contact Information - Collapsible */}
           <TouchableOpacity 
             style={styles.sectionHeader} 
             onPress={() => toggleSection('management')}
           >
             <Text style={styles.sectionTitle}>Management & Contact</Text>
-            <Ionicons 
-              name={expandedSections.management ? "chevron-up" : "chevron-down"} 
-              size={20} 
-              color="#007AFF" 
-            />
+            {expandedSections.management ? 
+              <FaChevronUp size={20} color="#007AFF" /> : 
+              <FaChevronDown size={20} color="#007AFF" />
+            }
           </TouchableOpacity>
 
           {expandedSections.management && (
             <View style={styles.collapsibleSection}>
               <View style={styles.inputContainer}>
-                <Ionicons name="person-outline" size={20} color="#666" style={styles.inputIcon} />
+                <FaUser size={20} color="#666" style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
                   placeholder="General Manager Name"
@@ -487,10 +493,10 @@ export default function RestaurantEntry() {
               </View>
 
               <View style={styles.inputContainer}>
-                <Ionicons name="call-outline" size={20} color="#666" style={styles.inputIcon} />
+                <FaPhone size={20} color="#666" style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
-                  placeholder="GM Phone"
+                  placeholder="GM Phone Number"
                   placeholderTextColor="#666"
                   value={formData.gmPhone}
                   onChangeText={(value) => updateFormData('gmPhone', value)}
@@ -499,10 +505,10 @@ export default function RestaurantEntry() {
               </View>
 
               <View style={styles.inputContainer}>
-                <Ionicons name="call-outline" size={20} color="#666" style={styles.inputIcon} />
+                <FaPhone size={20} color="#666" style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
-                  placeholder="Secondary Phone"
+                  placeholder="Secondary Phone (Optional)"
                   placeholderTextColor="#666"
                   value={formData.secondaryPhone}
                   onChangeText={(value) => updateFormData('secondaryPhone', value)}
@@ -511,10 +517,10 @@ export default function RestaurantEntry() {
               </View>
 
               <View style={styles.inputContainer}>
-                <Ionicons name="call-outline" size={20} color="#666" style={styles.inputIcon} />
+                <FaPhone size={20} color="#666" style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
-                  placeholder="Third Phone"
+                  placeholder="Third Phone (Optional)"
                   placeholderTextColor="#666"
                   value={formData.thirdPhone}
                   onChangeText={(value) => updateFormData('thirdPhone', value)}
@@ -530,17 +536,16 @@ export default function RestaurantEntry() {
             onPress={() => toggleSection('digital')}
           >
             <Text style={styles.sectionTitle}>Digital Presence</Text>
-            <Ionicons 
-              name={expandedSections.digital ? "chevron-up" : "chevron-down"} 
-              size={20} 
-              color="#007AFF" 
-            />
+            {expandedSections.digital ? 
+              <FaChevronUp size={20} color="#007AFF" /> : 
+              <FaChevronDown size={20} color="#007AFF" />
+            }
           </TouchableOpacity>
 
           {expandedSections.digital && (
             <View style={styles.collapsibleSection}>
               <View style={styles.inputContainer}>
-                <Ionicons name="bicycle-outline" size={20} color="#666" style={styles.inputIcon} />
+                <FaBicycle size={20} color="#666" style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
                   placeholder="DoorDash URL (Optional)"
@@ -553,7 +558,7 @@ export default function RestaurantEntry() {
               </View>
 
               <View style={styles.inputContainer}>
-                <Ionicons name="car-outline" size={20} color="#666" style={styles.inputIcon} />
+                <FaCar size={20} color="#666" style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
                   placeholder="Uber Eats URL (Optional)"
@@ -566,7 +571,7 @@ export default function RestaurantEntry() {
               </View>
 
               <View style={styles.inputContainer}>
-                <Ionicons name="fast-food-outline" size={20} color="#666" style={styles.inputIcon} />
+                <FaHamburger size={20} color="#666" style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
                   placeholder="Grubhub URL (Optional)"
@@ -580,14 +585,14 @@ export default function RestaurantEntry() {
             </View>
           )}
 
-          {/* Notes Section */}
+          {/* Additional Notes Section */}
           <Text style={styles.sectionTitle}>Additional Notes</Text>
           
           <View style={[styles.inputContainer, styles.notesContainer]}>
-            <Ionicons name="document-text-outline" size={20} color="#666" style={[styles.inputIcon, styles.notesIcon]} />
+            <FaClipboard size={20} color="#666" style={[styles.inputIcon, styles.notesIcon]} />
             <TextInput
               style={[styles.input, styles.notesInput]}
-              placeholder="Additional notes or special information..."
+              placeholder="Additional notes or special information"
               placeholderTextColor="#666"
               value={formData.notes}
               onChangeText={(value) => updateFormData('notes', value)}
@@ -597,33 +602,19 @@ export default function RestaurantEntry() {
             />
           </View>
 
-          {/* Save Button */}
-          <View style={styles.saveButton}>
-            <button
-              onClick={handleSaveRestaurant}
-              disabled={loading}
-              style={{
-                width: '100%',
-                backgroundColor: loading ? '#007AFF80' : '#007AFF',
-                color: '#fff',
-                border: 'none',
-                borderRadius: 12,
-                padding: 16,
-                fontSize: 16,
-                fontWeight: '600',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              {loading ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                '🏪 Save Restaurant'
-              )}
-            </button>
-          </View>
+          <TouchableOpacity 
+            style={[styles.submitButton, loading && styles.submitButtonDisabled]}
+            onPress={handleSubmit}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <>
+                <Text style={styles.submitButtonText}>💾 Save Restaurant</Text>
+              </>
+            )}
+          </TouchableOpacity>
         </View>
       </KeyboardAwareScrollView>
     </SafeAreaView>
@@ -654,6 +645,16 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
   },
+  restaurantIcon: {
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  iconHint: {
+    fontSize: 10,
+    color: '#666',
+    marginTop: 4,
+    textAlign: 'center',
+  },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
@@ -667,7 +668,15 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   form: {
-    width: '100%',
+    flex: 1,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 16,
+    marginBottom: 12,
+    paddingHorizontal: 4,
   },
   sectionTitle: {
     fontSize: 18,
@@ -676,10 +685,6 @@ const styles = StyleSheet.create({
     marginTop: 16,
     marginBottom: 12,
     paddingLeft: 4,
-  },
-  row: {
-    flexDirection: 'row',
-    marginBottom: 16,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -690,53 +695,58 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 4,
   },
-  notesContainer: {
-    alignItems: 'flex-start',
-    paddingVertical: 12,
-    minHeight: 80,
-  },
   inputIcon: {
     marginRight: 12,
-  },
-  notesIcon: {
-    marginTop: 4,
   },
   input: {
     flex: 1,
     color: '#fff',
     fontSize: 16,
-    paddingVertical: 16,
+    paddingVertical: 12,
+  },
+  rowContainer: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  flexInput: {
+    flex: 2,
+  },
+  stateInput: {
+    flex: 0.8,
+  },
+  zipInput: {
+    flex: 1.2,
+  },
+  notesContainer: {
+    alignItems: 'flex-start',
+  },
+  notesIcon: {
+    marginTop: 12,
   },
   notesInput: {
-    paddingVertical: 8,
-    minHeight: 60,
+    minHeight: 80,
+    paddingTop: 12,
+    paddingBottom: 12,
   },
-  saveButton: {
-    marginTop: 32,
-    marginBottom: 40,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#1C1C1C',
+  submitButton: {
+    backgroundColor: '#007AFF',
     borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    marginTop: 16,
-    marginBottom: 12,
+    paddingVertical: 16,
+    marginTop: 24,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  submitButtonDisabled: {
+    opacity: 0.6,
+  },
+  submitButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '600',
   },
   collapsibleSection: {
     marginBottom: 16,
-  },
-  restaurantIcon: {
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  iconHint: {
-    fontSize: 10,
-    color: '#666',
-    marginTop: 4,
-    textAlign: 'center',
   },
 });

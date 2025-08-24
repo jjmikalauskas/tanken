@@ -674,4 +674,18 @@ const styles = StyleSheet.create({
     marginTop: 32,
     marginBottom: 40,
   },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#1C1C1C',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginTop: 16,
+    marginBottom: 12,
+  },
+  collapsibleSection: {
+    marginBottom: 16,
+  },
 });

@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { adminAPI } from '../services/api';
 
 interface Restaurant {
   id: string;

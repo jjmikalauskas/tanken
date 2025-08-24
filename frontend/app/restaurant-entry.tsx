@@ -16,6 +16,10 @@ import { restaurantAPI } from '../services/api';
 
 export default function RestaurantEntry() {
   const [loading, setLoading] = useState(false);
+  const [expandedSections, setExpandedSections] = useState({
+    management: false,
+    digital: false,
+  });
   const [formData, setFormData] = useState({
     // Pre-filled test data for quick testing
     restaurantName: 'Tycoon Flats',

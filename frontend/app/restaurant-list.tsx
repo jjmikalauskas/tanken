@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { restaurantAPI } from '../services/api';
 
 export default function RestaurantList() {
   const [restaurants, setRestaurants] = useState([]);

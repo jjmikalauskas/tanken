@@ -234,49 +234,70 @@ export default function RestaurantEntry() {
       const result = await restaurantAPI.create(restaurantData);
       
       console.log('🏪 Restaurant saved successfully:', result);
-      console.log('🏪 About to show success alert...');
       
-      // Web-compatible success confirmation
-      const userChoice = window.confirm(
-        `🎉 Success!\n\nRestaurant '${formData.restaurantName}' has been saved successfully!\n\nWould you like to add another restaurant?\n\n• Click 'OK' to clear form and add another\n• Click 'Cancel' to view restaurant list`
+      // First, show success alert (works on mobile, fallback for web)
+      Alert.alert(
+        '🎉 Success!',
+        `Restaurant '${formData.restaurantName}' has been saved successfully!`,
+        [
+          { 
+            text: 'OK',
+            onPress: () => {
+              // After success acknowledgment, ask what to do next
+              Alert.alert(
+                'What\'s Next?',
+                'What would you like to do now?',
+                [
+                  {
+                    text: 'Add Another Restaurant',
+                    onPress: () => {
+                      console.log('🏪 User chose "Add Another" - clearing form...');
+                      // Clear form for next entry
+                      setFormData({
+                        restaurantName: '',
+                        streetAddress: '',
+                        city: 'Dallas',
+                        state: 'TX',
+                        zipcode: '',
+                        primaryPhone: '',
+                        websiteUrl: '',
+                        menuUrl: '',
+                        menuComments: '',
+                        gmName: '',
+                        gmPhone: '',
+                        secondaryPhone: '',
+                        thirdPhone: '',
+                        doordashUrl: '',
+                        uberEatsUrl: '',
+                        grubhubUrl: '',
+                        notes: '',
+                      });
+                      
+                      // Collapse sections
+                      setExpandedSections({
+                        management: false,
+                        digital: false,
+                      });
+                      console.log('🏪 Form cleared and sections collapsed!');
+                    }
+                  },
+                  {
+                    text: 'View Restaurant List',
+                    onPress: () => {
+                      console.log('🏪 User chose "View List" - navigating...');
+                      router.push('/restaurant-list');
+                    }
+                  },
+                  {
+                    text: 'Stay Here',
+                    style: 'cancel'
+                  }
+                ]
+              );
+            }
+          }
+        ]
       );
-      
-      if (userChoice) {
-        // User clicked OK - Clear form for next entry
-        console.log('🏪 User chose "Add Another" - clearing form...');
-        setFormData({
-          restaurantName: '',
-          streetAddress: '',
-          city: 'Dallas',
-          state: 'TX',
-          zipcode: '',
-          primaryPhone: '',
-          websiteUrl: '',
-          menuUrl: '',
-          menuComments: '',
-          gmName: '',
-          gmPhone: '',
-          secondaryPhone: '',
-          thirdPhone: '',
-          doordashUrl: '',
-          uberEatsUrl: '',
-          grubhubUrl: '',
-          notes: '',
-        });
-        
-        // Collapse sections
-        setExpandedSections({
-          management: false,
-          digital: false,
-        });
-        console.log('🏪 Form cleared and sections collapsed!');
-      } else {
-        // User clicked Cancel - Navigate to list
-        console.log('🏪 User chose "View List" - navigating...');
-        router.push('/restaurant-list');
-      }
-      
-      console.log('🏪 Success handling complete!');
       
     } catch (error) {
       console.error('🏪 Error saving restaurant:', error);

@@ -9,7 +9,17 @@ import {
   TouchableOpacity,
   TextInput,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { 
+  FaArrowLeft,
+  FaUtensils,
+  FaMapMarkerAlt,
+  FaPhone,
+  FaGlobe,
+  FaUser,
+  FaFileAlt,
+  FaSearch,
+  FaPlus
+} from 'react-icons/fa';
 import { router } from 'expo-router';
 import { restaurantAPI } from '../services/api';
 
@@ -71,9 +81,11 @@ export default function RestaurantList() {
     const term = searchTerm.toLowerCase();
     return (
       restaurant.restaurant_name?.toLowerCase().includes(term) ||
+      restaurant.name?.toLowerCase().includes(term) ||
       restaurant.city?.toLowerCase().includes(term) ||
       restaurant.state?.toLowerCase().includes(term) ||
-      restaurant.gm_name?.toLowerCase().includes(term)
+      restaurant.gm_name?.toLowerCase().includes(term) ||
+      restaurant.gmName?.toLowerCase().includes(term)
     );
   });
 
@@ -95,7 +107,7 @@ export default function RestaurantList() {
           style={styles.backButton}
           onPress={() => router.back()}
         >
-          <Ionicons name="arrow-back" size={24} color="#fff" />
+          <FaArrowLeft size={20} color="#fff" />
         </TouchableOpacity>
         <View style={styles.headerContent}>
           <Text style={styles.title}>Restaurant Database</Text>
@@ -105,7 +117,7 @@ export default function RestaurantList() {
 
       {/* Search Bar */}
       <View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color="#666" style={styles.searchIcon} />
+        <FaSearch size={20} color="#666" style={styles.searchIcon} />
         <TextInput
           style={styles.searchInput}
           placeholder="Search restaurants, cities, or managers..."
@@ -140,7 +152,7 @@ export default function RestaurantList() {
         {filteredRestaurants.map((restaurant, index) => (
           <View key={restaurant.id || index} style={styles.restaurantCard}>
             <View style={styles.restaurantHeader}>
-              <Ionicons name="restaurant" size={24} color="#007AFF" />
+              <FaUtensils size={24} color="#007AFF" />
               <View style={styles.restaurantTitleContainer}>
                 <Text style={styles.restaurantName}>{restaurant.name || restaurant.restaurantName || 'Unknown Restaurant'}</Text>
                 <Text style={styles.createdBy}>Added by: {restaurant.created_by || 'data-entry1'}</Text>
@@ -149,34 +161,34 @@ export default function RestaurantList() {
             
             <View style={styles.restaurantDetails}>
               <View style={styles.detailRow}>
-                <Ionicons name="location-outline" size={16} color="#666" />
+                <FaMapMarkerAlt size={16} color="#666" />
                 <Text style={styles.detailText}>
                   {restaurant.address || `${restaurant.streetAddress || ''}, ${restaurant.city || ''}, ${restaurant.state || ''} ${restaurant.zipcode || ''}`.trim()}
                 </Text>
               </View>
 
               <View style={styles.detailRow}>
-                <Ionicons name="call-outline" size={16} color="#666" />
+                <FaPhone size={16} color="#666" />
                 <Text style={styles.detailText}>{restaurant.primaryPhone || restaurant.primary_phone || 'No phone'}</Text>
               </View>
 
               {(restaurant.websiteUrl || restaurant.website_url) && (
                 <View style={styles.detailRow}>
-                  <Ionicons name="globe-outline" size={16} color="#666" />
+                  <FaGlobe size={16} color="#666" />
                   <Text style={styles.detailText}>{restaurant.websiteUrl || restaurant.website_url}</Text>
                 </View>
               )}
 
               {(restaurant.menuUrl || restaurant.menu_url) && (
                 <View style={styles.detailRow}>
-                  <Ionicons name="restaurant-outline" size={16} color="#666" />
+                  <FaUtensils size={16} color="#666" />
                   <Text style={styles.detailText}>Menu: {restaurant.menuUrl || restaurant.menu_url}</Text>
                 </View>
               )}
 
               {(restaurant.gmName || restaurant.gm_name) && (
                 <View style={styles.detailRow}>
-                  <Ionicons name="person-outline" size={16} color="#666" />
+                  <FaUser size={16} color="#666" />
                   <Text style={styles.detailText}>GM: {restaurant.gmName || restaurant.gm_name}</Text>
                   {(restaurant.gmPhone || restaurant.gm_phone) && (
                     <Text style={styles.detailText}> ({restaurant.gmPhone || restaurant.gm_phone})</Text>
@@ -186,7 +198,7 @@ export default function RestaurantList() {
 
               {(restaurant.notes) && (
                 <View style={styles.detailRow}>
-                  <Ionicons name="document-text-outline" size={16} color="#666" />
+                  <FaFileAlt size={16} color="#666" />
                   <Text style={styles.detailText}>{restaurant.notes}</Text>
                 </View>
               )}
@@ -214,7 +226,7 @@ export default function RestaurantList() {
 
         {filteredRestaurants.length === 0 && !loading && (
           <View style={styles.emptyState}>
-            <Ionicons name="restaurant-outline" size={64} color="#666" />
+            <Text style={{fontSize: 64}}>🍽️</Text>
             <Text style={styles.emptyText}>
               {searchTerm ? 'No restaurants found matching your search' : 'No restaurants found'}
             </Text>
@@ -229,7 +241,7 @@ export default function RestaurantList() {
         style={styles.addButton}
         onPress={() => router.push('/restaurant-entry')}
       >
-        <Ionicons name="add" size={24} color="#fff" />
+        <FaPlus size={20} color="#fff" />
         <Text style={styles.addButtonText}>Add Restaurant</Text>
       </TouchableOpacity>
     </SafeAreaView>

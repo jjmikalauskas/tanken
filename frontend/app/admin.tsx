@@ -9,13 +9,25 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { 
+  FaArrowLeft,
+  FaUtensils,
+  FaMapMarkerAlt,
+  FaMap,
+  FaUser,
+  FaSync,
+  FaPlus,
+  FaList,
+  FaTrash,
+  FaFolderOpen
+} from 'react-icons/fa';
 import { router } from 'expo-router';
 import { adminAPI } from '../services/api';
 
 interface Restaurant {
   id: string;
   restaurant_name: string;
+  name: string;
   street_address: string;
   city: string;
   state: string;
@@ -112,7 +124,7 @@ export default function AdminScreen() {
           style={styles.backButton}
           onPress={() => router.back()}
         >
-          <Ionicons name="arrow-back" size={24} color="#fff" />
+          <FaArrowLeft size={20} color="#fff" />
         </TouchableOpacity>
         <View style={styles.headerContent}>
           <Text style={styles.title}>Database Admin</Text>
@@ -122,7 +134,7 @@ export default function AdminScreen() {
           style={styles.refreshButton}
           onPress={fetchAdminData}
         >
-          <Ionicons name="refresh" size={24} color="#007AFF" />
+          <FaSync size={20} color="#007AFF" />
         </TouchableOpacity>
       </View>
 
@@ -134,25 +146,25 @@ export default function AdminScreen() {
             
             <View style={styles.statsGrid}>
               <View style={styles.statCard}>
-                <Ionicons name="restaurant" size={32} color="#007AFF" />
+                <FaUtensils size={32} color="#007AFF" />
                 <Text style={styles.statNumber}>{stats.total_count}</Text>
                 <Text style={styles.statLabel}>Total Restaurants</Text>
               </View>
               
               <View style={styles.statCard}>
-                <Ionicons name="location" size={32} color="#28A745" />
+                <FaMapMarkerAlt size={32} color="#28A745" />
                 <Text style={styles.statNumber}>{stats.cities_covered}</Text>
                 <Text style={styles.statLabel}>Cities</Text>
               </View>
               
               <View style={styles.statCard}>
-                <Ionicons name="map" size={32} color="#FFC107" />
+                <FaMap size={32} color="#FFC107" />
                 <Text style={styles.statNumber}>{stats.states_covered}</Text>
                 <Text style={styles.statLabel}>States</Text>
               </View>
               
               <View style={styles.statCard}>
-                <Ionicons name="person" size={32} color="#DC3545" />
+                <FaUser size={32} color="#DC3545" />
                 <Text style={styles.statNumber}>{stats.created_by_users.length}</Text>
                 <Text style={styles.statLabel}>Users</Text>
               </View>
@@ -194,25 +206,27 @@ export default function AdminScreen() {
           {restaurants.map((restaurant, index) => (
             <View key={restaurant.id || index} style={styles.restaurantItem}>
               <View style={styles.restaurantInfo}>
-                <Text style={styles.restaurantName}>{restaurant.restaurant_name}</Text>
+                <Text style={styles.restaurantName}>
+                  {restaurant.restaurant_name || restaurant.name || 'Unknown Restaurant'}
+                </Text>
                 <Text style={styles.restaurantDetails}>
                   {restaurant.city}, {restaurant.state} • {restaurant.created_by}
                 </Text>
                 <Text style={styles.restaurantKey}>{restaurant.restaurant_key}</Text>
                 <Text style={styles.restaurantDate}>
-                  {new Date(restaurant.created_at).toLocaleDateString()}
+                  {restaurant.created_at ? new Date(restaurant.created_at).toLocaleDateString() : 'Date unknown'}
                 </Text>
               </View>
               
               <TouchableOpacity
                 style={[styles.deleteButton, deleting === restaurant.id && styles.deletingButton]}
-                onPress={() => handleDeleteRestaurant(restaurant.id, restaurant.restaurant_name)}
+                onPress={() => handleDeleteRestaurant(restaurant.id, restaurant.restaurant_name || restaurant.name || 'Unknown')}
                 disabled={deleting === restaurant.id}
               >
                 {deleting === restaurant.id ? (
                   <ActivityIndicator size="small" color="#fff" />
                 ) : (
-                  <Ionicons name="trash" size={20} color="#fff" />
+                  <FaTrash size={16} color="#fff" />
                 )}
               </TouchableOpacity>
             </View>
@@ -220,7 +234,7 @@ export default function AdminScreen() {
 
           {restaurants.length === 0 && (
             <View style={styles.emptyState}>
-              <Ionicons name="folder-open-outline" size={64} color="#666" />
+              <FaFolderOpen size={64} color="#666" />
               <Text style={styles.emptyText}>No restaurants in database</Text>
               <Text style={styles.emptySubtext}>Add some restaurants to manage them here</Text>
             </View>
@@ -233,7 +247,7 @@ export default function AdminScreen() {
           style={styles.actionButton}
           onPress={() => router.push('/restaurant-entry')}
         >
-          <Ionicons name="add" size={20} color="#fff" />
+          <FaPlus size={16} color="#fff" />
           <Text style={styles.actionButtonText}>Add Restaurant</Text>
         </TouchableOpacity>
         
@@ -241,7 +255,7 @@ export default function AdminScreen() {
           style={[styles.actionButton, styles.secondaryActionButton]}
           onPress={() => router.push('/restaurant-list')}
         >
-          <Ionicons name="list" size={20} color="#007AFF" />
+          <FaList size={16} color="#007AFF" />
           <Text style={[styles.actionButtonText, styles.secondaryActionButtonText]}>View List</Text>
         </TouchableOpacity>
       </View>

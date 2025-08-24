@@ -51,6 +51,52 @@ export default function RestaurantEntry() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  // Toggle section expansion
+  const toggleSection = (section: 'management' | 'digital') => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
+  // Pre-fill test data for easy testing
+  const fillTestData = () => {
+    setFormData({
+      // Pre-filled test data for quick testing
+      restaurantName: 'Tycoon Flats',
+      streetAddress: '121 Main St',
+      city: 'Dallas',
+      state: 'TX',
+      zipcode: '75409',
+      primaryPhone: '(214) 555-0123',
+      websiteUrl: 'https://tycoonflats.com',
+      menuUrl: 'https://tycoonflats.com/menu',
+      menuComments: 'Full bar, steakhouse menu, daily specials available',
+      
+      // Management
+      gmName: 'John Smith',
+      gmPhone: '(214) 555-0124',
+      secondaryPhone: '(214) 555-0125',
+      thirdPhone: '(214) 555-0126',
+      
+      // Digital Presence
+      doordashUrl: 'https://doordash.com/store/tycoon-flats',
+      uberEatsUrl: 'https://ubereats.com/store/tycoon-flats',
+      grubhubUrl: 'https://grubhub.com/restaurant/tycoon-flats',
+      
+      // Additional
+      notes: 'Upscale steakhouse, full bar, private dining available',
+    });
+
+    // Expand sections when test data is filled
+    setExpandedSections({
+      management: true,
+      digital: true,
+    });
+
+    Alert.alert('Test Data Loaded! 🎉', 'Form has been pre-filled with sample data for easy testing.');
+  };
+
   // Validation functions
   const validatePhone = (phone: string) => {
     if (!phone) return true; // Optional fields

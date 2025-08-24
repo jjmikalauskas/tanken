@@ -2,6 +2,10 @@ const { getDefaultConfig } = require("expo/metro-config");
 
 const config = getDefaultConfig(__dirname);
 
+config.resolver.alias = {
+  // This ensures assets load correctly on GitHub Pages
+  '@expo/vector-icons': '@expo/vector-icons'
+};
 // // Exclude unnecessary directories from file watching
 // config.watchFolders = [__dirname];
 // config.resolver.blacklistRE = /(.*)\/(__tests__|android|ios|build|dist|.git|node_modules\/.*\/android|node_modules\/.*\/ios|node_modules\/.*\/windows|node_modules\/.*\/macos)(\/.*)?$/;

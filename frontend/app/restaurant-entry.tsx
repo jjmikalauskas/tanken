@@ -235,14 +235,15 @@ export default function RestaurantEntry() {
       
       console.log('🏪 Restaurant saved successfully:', result);
       
+      // Success toast and clear form
       Alert.alert(
-        'Success!',
-        `Restaurant "${formData.restaurantName}" saved successfully!\n\nKey: ${restaurantKey}`,
+        '🎉 Success!',
+        `Restaurant '${formData.restaurantName}' has been saved successfully!\n\nReady to add another restaurant?`,
         [
           {
             text: 'Add Another',
             onPress: () => {
-              // Clear form for next entry but keep some test data
+              // Clear form for next entry
               setFormData({
                 restaurantName: '',
                 streetAddress: '',
@@ -262,9 +263,19 @@ export default function RestaurantEntry() {
                 grubhubUrl: '',
                 notes: '',
               });
+              
+              // Collapse sections
+              setExpandedSections({
+                management: false,
+                digital: false,
+              });
             }
           },
-          { text: 'Done', style: 'default' }
+          {
+            text: 'View List',
+            onPress: () => router.push('/restaurant-list'),
+            style: 'default'
+          }
         ]
       );
       

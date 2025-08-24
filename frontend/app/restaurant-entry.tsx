@@ -234,6 +234,7 @@ export default function RestaurantEntry() {
       const result = await restaurantAPI.create(restaurantData);
       
       console.log('🏪 Restaurant saved successfully:', result);
+      console.log('🏪 About to show first success alert...');
       
       // First, show success alert (works on mobile, fallback for web)
       Alert.alert(
@@ -243,6 +244,7 @@ export default function RestaurantEntry() {
           { 
             text: 'OK',
             onPress: () => {
+              console.log('🏪 First alert OK pressed, showing second alert...');
               // After success acknowledgment, ask what to do next
               Alert.alert(
                 'What\'s Next?',
@@ -290,7 +292,10 @@ export default function RestaurantEntry() {
                   },
                   {
                     text: 'Stay Here',
-                    style: 'cancel'
+                    style: 'cancel',
+                    onPress: () => {
+                      console.log('🏪 User chose "Stay Here" - doing nothing...');
+                    }
                   }
                 ]
               );
@@ -298,6 +303,8 @@ export default function RestaurantEntry() {
           }
         ]
       );
+      
+      console.log('🏪 First alert should be showing now...');
       
     } catch (error) {
       console.error('🏪 Error saving restaurant:', error);

@@ -497,47 +497,61 @@ export default function RestaurantEntry() {
             </View>
           )}
 
-          {/* Digital Presence Section */}
-          <Text style={styles.sectionTitle}>Digital Presence</Text>
-          
-          <View style={styles.inputContainer}>
-            <Ionicons name="car-outline" size={20} color="#666" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="DoorDash URL"
-              placeholderTextColor="#666"
-              value={formData.doordashUrl}
-              onChangeText={(value) => updateFormData('doordashUrl', value)}
-              keyboardType="url"
-              autoCapitalize="none"
+          {/* Digital Presence - Collapsible */}
+          <TouchableOpacity 
+            style={styles.sectionHeader} 
+            onPress={() => toggleSection('digital')}
+          >
+            <Text style={styles.sectionTitle}>Digital Presence</Text>
+            <Ionicons 
+              name={expandedSections.digital ? "chevron-up" : "chevron-down"} 
+              size={20} 
+              color="#007AFF" 
             />
-          </View>
+          </TouchableOpacity>
 
-          <View style={styles.inputContainer}>
-            <Ionicons name="car-outline" size={20} color="#666" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Uber Eats URL"
-              placeholderTextColor="#666"
-              value={formData.uberEatsUrl}
-              onChangeText={(value) => updateFormData('uberEatsUrl', value)}
-              keyboardType="url"
-              autoCapitalize="none"
-            />
-          </View>
+          {expandedSections.digital && (
+            <View style={styles.collapsibleSection}>
+              <View style={styles.inputContainer}>
+                <Ionicons name="logo-doordash" size={20} color="#666" style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="DoorDash URL (Optional)"
+                  placeholderTextColor="#666"
+                  value={formData.doordashUrl}
+                  onChangeText={(value) => updateFormData('doordashUrl', value)}
+                  keyboardType="url"
+                  autoCapitalize="none"
+                />
+              </View>
 
-          <View style={styles.inputContainer}>
-            <Ionicons name="car-outline" size={20} color="#666" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Grubhub URL"
-              placeholderTextColor="#666"
-              value={formData.grubhubUrl}
-              onChangeText={(value) => updateFormData('grubhubUrl', value)}
-              keyboardType="url"
-              autoCapitalize="none"
-            />
-          </View>
+              <View style={styles.inputContainer}>
+                <Ionicons name="car-outline" size={20} color="#666" style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Uber Eats URL (Optional)"
+                  placeholderTextColor="#666"
+                  value={formData.uberEatsUrl}
+                  onChangeText={(value) => updateFormData('uberEatsUrl', value)}
+                  keyboardType="url"
+                  autoCapitalize="none"
+                />
+              </View>
+
+              <View style={styles.inputContainer}>
+                <Ionicons name="fast-food-outline" size={20} color="#666" style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Grubhub URL (Optional)"
+                  placeholderTextColor="#666"
+                  value={formData.grubhubUrl}
+                  onChangeText={(value) => updateFormData('grubhubUrl', value)}
+                  keyboardType="url"
+                  autoCapitalize="none"
+                />
+              </View>
+            </View>
+          )}
 
           {/* Notes Section */}
           <Text style={styles.sectionTitle}>Additional Notes</Text>

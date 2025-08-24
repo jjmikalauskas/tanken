@@ -33,8 +33,7 @@ jobs:
       - name: Build Expo web app
         run: |
           cd frontend
-          npx expo install --fix
-          npx expo export --platform web
+          npx expo export --platform web --output-dir dist --public-url /tanken/
           
       - name: Setup Pages
         uses: actions/configure-pages@v4

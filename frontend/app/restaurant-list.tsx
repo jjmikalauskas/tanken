@@ -31,10 +31,10 @@ export default function RestaurantList() {
         order: sortOrder
       });
       
-      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/restaurants?${params}`);
+      const response = await fetch(`https://us-central1-mongoose1-app.cloudfunctions.net/api/restaurants/holding?${params}`);
       const data = await response.json();
       setRestaurants(data.restaurants || []);
-      console.log(`📋 Loaded ${data.restaurants?.length || 0} restaurants, sorted by ${sortBy} ${sortOrder}`);
+      console.log(`📋 Loaded ${data.restaurants?.length || 0} restaurants from your existing backend, sorted by ${sortBy} ${sortOrder}`);
     } catch (error) {
       console.error('Error fetching restaurants:', error);
     } finally {

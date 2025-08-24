@@ -27,15 +27,15 @@ export default function RestaurantList() {
   const fetchRestaurants = async () => {
     try {
       setLoading(true);
-      const params = new URLSearchParams({
+      
+      // Use the centralized API service with clean parameters
+      const data = await restaurantAPI.getAll({
         sort_by: sortBy,
         order: sortOrder
       });
       
-      const response = await fetch(`https://us-central1-mongoose1-app.cloudfunctions.net/api/restaurants/holding?${params}`);
-      const data = await response.json();
       setRestaurants(data.restaurants || []);
-      console.log(`📋 Loaded ${data.restaurants?.length || 0} restaurants from your existing backend, sorted by ${sortBy} ${sortOrder}`);
+      console.log(`📋 Loaded ${data.restaurants?.length || 0} restaurants from API service, sorted by ${sortBy} ${sortOrder}`);
     } catch (error) {
       console.error('Error fetching restaurants:', error);
     } finally {

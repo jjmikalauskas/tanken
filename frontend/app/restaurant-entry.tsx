@@ -432,55 +432,70 @@ export default function RestaurantEntry() {
           </View>
 
           {/* Management Section */}
-          <Text style={styles.sectionTitle}>Management & Contact</Text>
-          
-          <View style={styles.inputContainer}>
-            <Ionicons name="person-outline" size={20} color="#666" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="General Manager Name"
-              placeholderTextColor="#666"
-              value={formData.gmName}
-              onChangeText={(value) => updateFormData('gmName', value)}
-              autoCapitalize="words"
+          {/* Management & Contact Information - Collapsible */}
+          <TouchableOpacity 
+            style={styles.sectionHeader} 
+            onPress={() => toggleSection('management')}
+          >
+            <Text style={styles.sectionTitle}>Management & Contact</Text>
+            <Ionicons 
+              name={expandedSections.management ? "chevron-up" : "chevron-down"} 
+              size={20} 
+              color="#007AFF" 
             />
-          </View>
+          </TouchableOpacity>
 
-          <View style={styles.inputContainer}>
-            <Ionicons name="call-outline" size={20} color="#666" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="GM Phone"
-              placeholderTextColor="#666"
-              value={formData.gmPhone}
-              onChangeText={(value) => updateFormData('gmPhone', value)}
-              keyboardType="phone-pad"
-            />
-          </View>
+          {expandedSections.management && (
+            <View style={styles.collapsibleSection}>
+              <View style={styles.inputContainer}>
+                <Ionicons name="person-outline" size={20} color="#666" style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="General Manager Name"
+                  placeholderTextColor="#666"
+                  value={formData.gmName}
+                  onChangeText={(value) => updateFormData('gmName', value)}
+                  autoCapitalize="words"
+                />
+              </View>
 
-          <View style={styles.inputContainer}>
-            <Ionicons name="call-outline" size={20} color="#666" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Secondary Phone"
-              placeholderTextColor="#666"
-              value={formData.secondaryPhone}
-              onChangeText={(value) => updateFormData('secondaryPhone', value)}
-              keyboardType="phone-pad"
-            />
-          </View>
+              <View style={styles.inputContainer}>
+                <Ionicons name="call-outline" size={20} color="#666" style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="GM Phone"
+                  placeholderTextColor="#666"
+                  value={formData.gmPhone}
+                  onChangeText={(value) => updateFormData('gmPhone', value)}
+                  keyboardType="phone-pad"
+                />
+              </View>
 
-          <View style={styles.inputContainer}>
-            <Ionicons name="call-outline" size={20} color="#666" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Third Phone"
-              placeholderTextColor="#666"
-              value={formData.thirdPhone}
-              onChangeText={(value) => updateFormData('thirdPhone', value)}
-              keyboardType="phone-pad"
-            />
-          </View>
+              <View style={styles.inputContainer}>
+                <Ionicons name="call-outline" size={20} color="#666" style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Secondary Phone"
+                  placeholderTextColor="#666"
+                  value={formData.secondaryPhone}
+                  onChangeText={(value) => updateFormData('secondaryPhone', value)}
+                  keyboardType="phone-pad"
+                />
+              </View>
+
+              <View style={styles.inputContainer}>
+                <Ionicons name="call-outline" size={20} color="#666" style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Third Phone"
+                  placeholderTextColor="#666"
+                  value={formData.thirdPhone}
+                  onChangeText={(value) => updateFormData('thirdPhone', value)}
+                  keyboardType="phone-pad"
+                />
+              </View>
+            </View>
+          )}
 
           {/* Digital Presence Section */}
           <Text style={styles.sectionTitle}>Digital Presence</Text>

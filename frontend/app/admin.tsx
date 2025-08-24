@@ -50,10 +50,9 @@ export default function AdminScreen() {
   const fetchAdminData = async () => {
     try {
       setLoading(true);
-      // For now, just fetch the same data from your existing endpoint
-      // You can add admin endpoints to your existing backend later if needed
-      const response = await fetch(`https://us-central1-mongoose1-app.cloudfunctions.net/api/restaurants/holding`);
-      const data = await response.json();
+      
+      // Use the centralized API service for admin data
+      const data = await adminAPI.getStats();
       
       setRestaurants(data.restaurants || []);
       
@@ -73,7 +72,7 @@ export default function AdminScreen() {
         current_user: 'data-entry1'
       });
       
-      console.log('📊 Admin data loaded from your existing backend:', {
+      console.log('📊 Admin data loaded via API service:', {
         restaurants: restaurants.length,
         cities: cities.length,
         states: states.length

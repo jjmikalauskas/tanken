@@ -28,16 +28,29 @@ export default function RestaurantList() {
     try {
       setLoading(true);
       
-      // Use the centralized API service with clean parameters
+      // Use the centralized API service - but backend returns array directly
       const data = await restaurantAPI.getAll({
         sort_by: sortBy,
         order: sortOrder
       });
       
-      setRestaurants(data.restaurants || []);
-      console.log(`📋 Loaded ${data.restaurants?.length || 0} restaurants from API service, sorted by ${sortBy} ${sortOrder}`);
+      // Backend returns array directly, not wrapped in {restaurants: [...]}
+      const restaurantsArray = Array.isArray(data) ? data : (data.restaurants || []);
+      setRestaurants(restaurantsArray);
+      console.log(`📋 Loaded ${restaurantsArray.length} restaurants from API service, sorted by ${sortBy} ${sortOrder}`);
     } catch (error) {
       console.error('Error fetching restaurants:', error);
+      // Try without query parameters as fallback
+      try {
+        console.log('📋 Trying fallback API call without parameters...');
+        const fallbackResponse = await fetch('https://us-central1-mongoose1-app.cloudfunctions.net/api/restaurants/holding');
+        const fallbackData = await fallbackResponse.json();
+        const restaurantsArray = Array.isArray(fallbackData) ? fallbackData : [];
+        setRestaurants(restaurantsArray);
+        console.log(`📋 Fallback loaded ${restaurantsArray.length} restaurants`);
+      } catch (fallbackError) {
+        console.error('Fallback also failed:', fallbackError);
+      }
     } finally {
       setLoading(false);
     }

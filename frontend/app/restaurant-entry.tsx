@@ -302,7 +302,13 @@ export default function RestaurantEntry() {
             <Ionicons name="arrow-back" size={24} color="#fff" />
           </TouchableOpacity>
           <View style={styles.header}>
-            <Ionicons name="restaurant" size={32} color="#007AFF" />
+            <TouchableOpacity 
+              onPress={fillTestData}
+              style={styles.restaurantIcon}
+            >
+              <Ionicons name="restaurant" size={32} color="#007AFF" />
+              <Text style={styles.iconHint}>Tap for test data</Text>
+            </TouchableOpacity>
             <Text style={styles.title}>Add Restaurant</Text>
             <Text style={styles.subtitle}>Enter restaurant details for our database</Text>
           </View>

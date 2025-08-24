@@ -159,22 +159,10 @@ export default function RestaurantEntry() {
         updatedAt: new Date().toISOString(),
       };
 
-      console.log('🏪 Saving to backend with key:', restaurantKey);
+      console.log('🏪 Saving to your existing backend with key:', restaurantKey);
       
-      // Save to your existing backend instead of local backend
-      const response = await fetch(`https://us-central1-mongoose1-app.cloudfunctions.net/api/restaurants/holding`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(restaurantData),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
+      // Use the centralized API service instead of direct fetch
+      const result = await restaurantAPI.create(restaurantData);
       
       console.log('🏪 Restaurant saved successfully:', result);
       

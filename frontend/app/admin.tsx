@@ -87,36 +87,8 @@ export default function AdminScreen() {
   const handleDeleteRestaurant = async (restaurantId: string, restaurantName: string) => {
     Alert.alert(
       'Delete Restaurant',
-      `Are you sure you want to delete "${restaurantName}"? This action cannot be undone.`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              setDeleting(restaurantId);
-              
-              const response = await fetch(
-                `${process.env.EXPO_PUBLIC_BACKEND_URL}/api/admin/restaurants/${restaurantId}`,
-                { method: 'DELETE' }
-              );
-              
-              if (response.ok) {
-                Alert.alert('Success', 'Restaurant deleted successfully');
-                fetchAdminData(); // Refresh data
-              } else {
-                Alert.alert('Error', 'Failed to delete restaurant');
-              }
-            } catch (error) {
-              console.error('Error deleting restaurant:', error);
-              Alert.alert('Error', 'Failed to delete restaurant');
-            } finally {
-              setDeleting(null);
-            }
-          }
-        }
-      ]
+      'Delete functionality not implemented yet on the backend. You can add this to your existing backend later.',
+      [{ text: 'OK', style: 'default' }]
     );
   };
 

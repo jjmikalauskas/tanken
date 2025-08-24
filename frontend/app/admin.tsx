@@ -54,10 +54,12 @@ export default function AdminScreen() {
       // Use the centralized API service for admin data
       const data = await adminAPI.getStats();
       
-      setRestaurants(data.restaurants || []);
+      // Backend returns array directly, not wrapped in {restaurants: [...]}
+      const restaurantsArray = Array.isArray(data) ? data : (data.restaurants || []);
+      setRestaurants(restaurantsArray);
       
       // Generate basic stats from the data
-      const restaurants = data.restaurants || [];
+      const restaurants = restaurantsArray;
       const cities = [...new Set(restaurants.map(r => r.city))];
       const states = [...new Set(restaurants.map(r => r.state))]; 
       const users = [...new Set(restaurants.map(r => r.created_by || 'data-entry1'))];

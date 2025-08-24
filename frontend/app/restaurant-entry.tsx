@@ -16,6 +16,10 @@ import { restaurantAPI } from '../services/api';
 
 export default function RestaurantEntry() {
   const [loading, setLoading] = useState(false);
+  const [expandedSections, setExpandedSections] = useState({
+    management: false,
+    digital: false,
+  });
   const [formData, setFormData] = useState({
     // Pre-filled test data for quick testing
     restaurantName: 'Tycoon Flats',
@@ -45,6 +49,52 @@ export default function RestaurantEntry() {
 
   const updateFormData = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  // Toggle section expansion
+  const toggleSection = (section: 'management' | 'digital') => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
+  // Pre-fill test data for easy testing
+  const fillTestData = () => {
+    setFormData({
+      // Pre-filled test data for quick testing
+      restaurantName: 'Tycoon Flats',
+      streetAddress: '121 Main St',
+      city: 'Dallas',
+      state: 'TX',
+      zipcode: '75409',
+      primaryPhone: '(214) 555-0123',
+      websiteUrl: 'https://tycoonflats.com',
+      menuUrl: 'https://tycoonflats.com/menu',
+      menuComments: 'Full bar, steakhouse menu, daily specials available',
+      
+      // Management
+      gmName: 'John Smith',
+      gmPhone: '(214) 555-0124',
+      secondaryPhone: '(214) 555-0125',
+      thirdPhone: '(214) 555-0126',
+      
+      // Digital Presence
+      doordashUrl: 'https://doordash.com/store/tycoon-flats',
+      uberEatsUrl: 'https://ubereats.com/store/tycoon-flats',
+      grubhubUrl: 'https://grubhub.com/restaurant/tycoon-flats',
+      
+      // Additional
+      notes: 'Upscale steakhouse, full bar, private dining available',
+    });
+
+    // Expand sections when test data is filled
+    setExpandedSections({
+      management: true,
+      digital: true,
+    });
+
+    Alert.alert('Test Data Loaded! 🎉', 'Form has been pre-filled with sample data for easy testing.');
   };
 
   // Validation functions
@@ -151,10 +201,29 @@ export default function RestaurantEntry() {
       // Generate unique key
       const restaurantKey = generateRestaurantKey();
       
-      // Prepare data for backend
+      // Prepare data in the format your existing backend expects
       const restaurantData = {
-        ...formData,
-        restaurantKey,
+        name: formData.restaurantName,
+        address: `${formData.streetAddress}, ${formData.city}, ${formData.state} ${formData.zipcode}`,
+        city: formData.city,
+        state: formData.state,
+        zipcode: formData.zipcode,
+        primaryPhone: formData.primaryPhone,
+        websiteUrl: formData.websiteUrl,
+        menuUrl: formData.menuUrl,
+        menuComments: formData.menuComments,
+        gmName: formData.gmName,
+        gmPhone: formData.gmPhone,
+        secondaryPhone: formData.secondaryPhone,
+        thirdPhone: formData.thirdPhone,
+        doordashUrl: formData.doordashUrl,
+        uberEatsUrl: formData.uberEatsUrl,
+        grubhubUrl: formData.grubhubUrl,
+        notes: formData.notes,
+        restaurantName: formData.restaurantName,
+        streetAddress: formData.streetAddress,
+        // Keep the restaurant key for reference
+        restaurantKey: restaurantKey,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -165,39 +234,77 @@ export default function RestaurantEntry() {
       const result = await restaurantAPI.create(restaurantData);
       
       console.log('🏪 Restaurant saved successfully:', result);
+      console.log('🏪 About to show first success alert...');
       
+      // First, show success alert (works on mobile, fallback for web)
       Alert.alert(
-        'Success!',
-        `Restaurant "${formData.restaurantName}" saved successfully!\n\nKey: ${restaurantKey}`,
+        '🎉 Success!',
+        `Restaurant '${formData.restaurantName}' has been saved successfully!`,
         [
-          {
-            text: 'Add Another',
+          { 
+            text: 'OK',
             onPress: () => {
-              // Clear form for next entry but keep some test data
-              setFormData({
-                restaurantName: '',
-                streetAddress: '',
-                city: 'Dallas',
-                state: 'TX',
-                zipcode: '',
-                primaryPhone: '',
-                websiteUrl: '',
-                menuUrl: '',
-                menuComments: '',
-                gmName: '',
-                gmPhone: '',
-                secondaryPhone: '',
-                thirdPhone: '',
-                doordashUrl: '',
-                uberEatsUrl: '',
-                grubhubUrl: '',
-                notes: '',
-              });
+              console.log('🏪 First alert OK pressed, showing second alert...');
+              // After success acknowledgment, ask what to do next
+              Alert.alert(
+                'What\'s Next?',
+                'What would you like to do now?',
+                [
+                  {
+                    text: 'Add Another Restaurant',
+                    onPress: () => {
+                      console.log('🏪 User chose "Add Another" - clearing form...');
+                      // Clear form for next entry
+                      setFormData({
+                        restaurantName: '',
+                        streetAddress: '',
+                        city: 'Dallas',
+                        state: 'TX',
+                        zipcode: '',
+                        primaryPhone: '',
+                        websiteUrl: '',
+                        menuUrl: '',
+                        menuComments: '',
+                        gmName: '',
+                        gmPhone: '',
+                        secondaryPhone: '',
+                        thirdPhone: '',
+                        doordashUrl: '',
+                        uberEatsUrl: '',
+                        grubhubUrl: '',
+                        notes: '',
+                      });
+                      
+                      // Collapse sections
+                      setExpandedSections({
+                        management: false,
+                        digital: false,
+                      });
+                      console.log('🏪 Form cleared and sections collapsed!');
+                    }
+                  },
+                  {
+                    text: 'View Restaurant List',
+                    onPress: () => {
+                      console.log('🏪 User chose "View List" - navigating...');
+                      router.push('/restaurant-list');
+                    }
+                  },
+                  {
+                    text: 'Stay Here',
+                    style: 'cancel',
+                    onPress: () => {
+                      console.log('🏪 User chose "Stay Here" - doing nothing...');
+                    }
+                  }
+                ]
+              );
             }
-          },
-          { text: 'Done', style: 'default' }
+          }
         ]
       );
+      
+      console.log('🏪 First alert should be showing now...');
       
     } catch (error) {
       console.error('🏪 Error saving restaurant:', error);
@@ -222,7 +329,13 @@ export default function RestaurantEntry() {
             <Ionicons name="arrow-back" size={24} color="#fff" />
           </TouchableOpacity>
           <View style={styles.header}>
-            <Ionicons name="restaurant" size={32} color="#007AFF" />
+            <TouchableOpacity 
+              onPress={fillTestData}
+              style={styles.restaurantIcon}
+            >
+              <Ionicons name="restaurant" size={32} color="#007AFF" />
+              <Text style={styles.iconHint}>Tap for test data</Text>
+            </TouchableOpacity>
             <Text style={styles.title}>Add Restaurant</Text>
             <Text style={styles.subtitle}>Enter restaurant details for our database</Text>
           </View>
@@ -346,97 +459,126 @@ export default function RestaurantEntry() {
           </View>
 
           {/* Management Section */}
-          <Text style={styles.sectionTitle}>Management & Contact</Text>
-          
-          <View style={styles.inputContainer}>
-            <Ionicons name="person-outline" size={20} color="#666" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="General Manager Name"
-              placeholderTextColor="#666"
-              value={formData.gmName}
-              onChangeText={(value) => updateFormData('gmName', value)}
-              autoCapitalize="words"
+          {/* Management & Contact Information - Collapsible */}
+          <TouchableOpacity 
+            style={styles.sectionHeader} 
+            onPress={() => toggleSection('management')}
+          >
+            <Text style={styles.sectionTitle}>Management & Contact</Text>
+            <Ionicons 
+              name={expandedSections.management ? "chevron-up" : "chevron-down"} 
+              size={20} 
+              color="#007AFF" 
             />
-          </View>
+          </TouchableOpacity>
 
-          <View style={styles.inputContainer}>
-            <Ionicons name="call-outline" size={20} color="#666" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="GM Phone"
-              placeholderTextColor="#666"
-              value={formData.gmPhone}
-              onChangeText={(value) => updateFormData('gmPhone', value)}
-              keyboardType="phone-pad"
-            />
-          </View>
+          {expandedSections.management && (
+            <View style={styles.collapsibleSection}>
+              <View style={styles.inputContainer}>
+                <Ionicons name="person-outline" size={20} color="#666" style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="General Manager Name"
+                  placeholderTextColor="#666"
+                  value={formData.gmName}
+                  onChangeText={(value) => updateFormData('gmName', value)}
+                  autoCapitalize="words"
+                />
+              </View>
 
-          <View style={styles.inputContainer}>
-            <Ionicons name="call-outline" size={20} color="#666" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Secondary Phone"
-              placeholderTextColor="#666"
-              value={formData.secondaryPhone}
-              onChangeText={(value) => updateFormData('secondaryPhone', value)}
-              keyboardType="phone-pad"
-            />
-          </View>
+              <View style={styles.inputContainer}>
+                <Ionicons name="call-outline" size={20} color="#666" style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="GM Phone"
+                  placeholderTextColor="#666"
+                  value={formData.gmPhone}
+                  onChangeText={(value) => updateFormData('gmPhone', value)}
+                  keyboardType="phone-pad"
+                />
+              </View>
 
-          <View style={styles.inputContainer}>
-            <Ionicons name="call-outline" size={20} color="#666" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Third Phone"
-              placeholderTextColor="#666"
-              value={formData.thirdPhone}
-              onChangeText={(value) => updateFormData('thirdPhone', value)}
-              keyboardType="phone-pad"
-            />
-          </View>
+              <View style={styles.inputContainer}>
+                <Ionicons name="call-outline" size={20} color="#666" style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Secondary Phone"
+                  placeholderTextColor="#666"
+                  value={formData.secondaryPhone}
+                  onChangeText={(value) => updateFormData('secondaryPhone', value)}
+                  keyboardType="phone-pad"
+                />
+              </View>
 
-          {/* Digital Presence Section */}
-          <Text style={styles.sectionTitle}>Digital Presence</Text>
-          
-          <View style={styles.inputContainer}>
-            <Ionicons name="car-outline" size={20} color="#666" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="DoorDash URL"
-              placeholderTextColor="#666"
-              value={formData.doordashUrl}
-              onChangeText={(value) => updateFormData('doordashUrl', value)}
-              keyboardType="url"
-              autoCapitalize="none"
-            />
-          </View>
+              <View style={styles.inputContainer}>
+                <Ionicons name="call-outline" size={20} color="#666" style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Third Phone"
+                  placeholderTextColor="#666"
+                  value={formData.thirdPhone}
+                  onChangeText={(value) => updateFormData('thirdPhone', value)}
+                  keyboardType="phone-pad"
+                />
+              </View>
+            </View>
+          )}
 
-          <View style={styles.inputContainer}>
-            <Ionicons name="car-outline" size={20} color="#666" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Uber Eats URL"
-              placeholderTextColor="#666"
-              value={formData.uberEatsUrl}
-              onChangeText={(value) => updateFormData('uberEatsUrl', value)}
-              keyboardType="url"
-              autoCapitalize="none"
+          {/* Digital Presence - Collapsible */}
+          <TouchableOpacity 
+            style={styles.sectionHeader} 
+            onPress={() => toggleSection('digital')}
+          >
+            <Text style={styles.sectionTitle}>Digital Presence</Text>
+            <Ionicons 
+              name={expandedSections.digital ? "chevron-up" : "chevron-down"} 
+              size={20} 
+              color="#007AFF" 
             />
-          </View>
+          </TouchableOpacity>
 
-          <View style={styles.inputContainer}>
-            <Ionicons name="car-outline" size={20} color="#666" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Grubhub URL"
-              placeholderTextColor="#666"
-              value={formData.grubhubUrl}
-              onChangeText={(value) => updateFormData('grubhubUrl', value)}
-              keyboardType="url"
-              autoCapitalize="none"
-            />
-          </View>
+          {expandedSections.digital && (
+            <View style={styles.collapsibleSection}>
+              <View style={styles.inputContainer}>
+                <Ionicons name="bicycle-outline" size={20} color="#666" style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="DoorDash URL (Optional)"
+                  placeholderTextColor="#666"
+                  value={formData.doordashUrl}
+                  onChangeText={(value) => updateFormData('doordashUrl', value)}
+                  keyboardType="url"
+                  autoCapitalize="none"
+                />
+              </View>
+
+              <View style={styles.inputContainer}>
+                <Ionicons name="car-outline" size={20} color="#666" style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Uber Eats URL (Optional)"
+                  placeholderTextColor="#666"
+                  value={formData.uberEatsUrl}
+                  onChangeText={(value) => updateFormData('uberEatsUrl', value)}
+                  keyboardType="url"
+                  autoCapitalize="none"
+                />
+              </View>
+
+              <View style={styles.inputContainer}>
+                <Ionicons name="fast-food-outline" size={20} color="#666" style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Grubhub URL (Optional)"
+                  placeholderTextColor="#666"
+                  value={formData.grubhubUrl}
+                  onChangeText={(value) => updateFormData('grubhubUrl', value)}
+                  keyboardType="url"
+                  autoCapitalize="none"
+                />
+              </View>
+            </View>
+          )}
 
           {/* Notes Section */}
           <Text style={styles.sectionTitle}>Additional Notes</Text>
@@ -572,5 +714,29 @@ const styles = StyleSheet.create({
   saveButton: {
     marginTop: 32,
     marginBottom: 40,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#1C1C1C',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginTop: 16,
+    marginBottom: 12,
+  },
+  collapsibleSection: {
+    marginBottom: 16,
+  },
+  restaurantIcon: {
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  iconHint: {
+    fontSize: 10,
+    color: '#666',
+    marginTop: 4,
+    textAlign: 'center',
   },
 });

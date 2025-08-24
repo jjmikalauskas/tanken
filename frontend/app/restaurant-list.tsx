@@ -28,16 +28,29 @@ export default function RestaurantList() {
     try {
       setLoading(true);
       
-      // Use the centralized API service with clean parameters
+      // Use the centralized API service - but backend returns array directly
       const data = await restaurantAPI.getAll({
         sort_by: sortBy,
         order: sortOrder
       });
       
-      setRestaurants(data.restaurants || []);
-      console.log(`📋 Loaded ${data.restaurants?.length || 0} restaurants from API service, sorted by ${sortBy} ${sortOrder}`);
+      // Backend returns array directly, not wrapped in {restaurants: [...]}
+      const restaurantsArray = Array.isArray(data) ? data : (data.restaurants || []);
+      setRestaurants(restaurantsArray);
+      console.log(`📋 Loaded ${restaurantsArray.length} restaurants from API service, sorted by ${sortBy} ${sortOrder}`);
     } catch (error) {
       console.error('Error fetching restaurants:', error);
+      // Try without query parameters as fallback
+      try {
+        console.log('📋 Trying fallback API call without parameters...');
+        const fallbackResponse = await fetch('https://us-central1-mongoose1-app.cloudfunctions.net/api/restaurants/holding');
+        const fallbackData = await fallbackResponse.json();
+        const restaurantsArray = Array.isArray(fallbackData) ? fallbackData : [];
+        setRestaurants(restaurantsArray);
+        console.log(`📋 Fallback loaded ${restaurantsArray.length} restaurants`);
+      } catch (fallbackError) {
+        console.error('Fallback also failed:', fallbackError);
+      }
     } finally {
       setLoading(false);
     }
@@ -129,8 +142,8 @@ export default function RestaurantList() {
             <View style={styles.restaurantHeader}>
               <Ionicons name="restaurant" size={24} color="#007AFF" />
               <View style={styles.restaurantTitleContainer}>
-                <Text style={styles.restaurantName}>{restaurant.restaurant_name}</Text>
-                <Text style={styles.createdBy}>Added by: {restaurant.created_by || 'unknown'}</Text>
+                <Text style={styles.restaurantName}>{restaurant.name || restaurant.restaurantName || 'Unknown Restaurant'}</Text>
+                <Text style={styles.createdBy}>Added by: {restaurant.created_by || 'data-entry1'}</Text>
               </View>
             </View>
             
@@ -138,33 +151,40 @@ export default function RestaurantList() {
               <View style={styles.detailRow}>
                 <Ionicons name="location-outline" size={16} color="#666" />
                 <Text style={styles.detailText}>
-                  {restaurant.street_address}, {restaurant.city}, {restaurant.state} {restaurant.zipcode}
+                  {restaurant.address || `${restaurant.streetAddress || ''}, ${restaurant.city || ''}, ${restaurant.state || ''} ${restaurant.zipcode || ''}`.trim()}
                 </Text>
               </View>
 
               <View style={styles.detailRow}>
                 <Ionicons name="call-outline" size={16} color="#666" />
-                <Text style={styles.detailText}>{restaurant.primary_phone}</Text>
+                <Text style={styles.detailText}>{restaurant.primaryPhone || restaurant.primary_phone || 'No phone'}</Text>
               </View>
 
-              {restaurant.website_url && (
+              {(restaurant.websiteUrl || restaurant.website_url) && (
                 <View style={styles.detailRow}>
                   <Ionicons name="globe-outline" size={16} color="#666" />
-                  <Text style={styles.detailText}>{restaurant.website_url}</Text>
+                  <Text style={styles.detailText}>{restaurant.websiteUrl || restaurant.website_url}</Text>
                 </View>
               )}
 
-              {restaurant.gm_name && (
+              {(restaurant.menuUrl || restaurant.menu_url) && (
+                <View style={styles.detailRow}>
+                  <Ionicons name="restaurant-outline" size={16} color="#666" />
+                  <Text style={styles.detailText}>Menu: {restaurant.menuUrl || restaurant.menu_url}</Text>
+                </View>
+              )}
+
+              {(restaurant.gmName || restaurant.gm_name) && (
                 <View style={styles.detailRow}>
                   <Ionicons name="person-outline" size={16} color="#666" />
-                  <Text style={styles.detailText}>GM: {restaurant.gm_name}</Text>
-                  {restaurant.gm_phone && (
-                    <Text style={styles.detailText}> ({restaurant.gm_phone})</Text>
+                  <Text style={styles.detailText}>GM: {restaurant.gmName || restaurant.gm_name}</Text>
+                  {(restaurant.gmPhone || restaurant.gm_phone) && (
+                    <Text style={styles.detailText}> ({restaurant.gmPhone || restaurant.gm_phone})</Text>
                   )}
                 </View>
               )}
 
-              {restaurant.notes && (
+              {(restaurant.notes) && (
                 <View style={styles.detailRow}>
                   <Ionicons name="document-text-outline" size={16} color="#666" />
                   <Text style={styles.detailText}>{restaurant.notes}</Text>
@@ -173,14 +193,18 @@ export default function RestaurantList() {
 
               <View style={styles.keyContainer}>
                 <Text style={styles.keyLabel}>Restaurant Key:</Text>
-                <Text style={styles.keyValue}>{restaurant.restaurant_key}</Text>
+                <Text style={styles.keyValue}>{restaurant.restaurantKey || restaurant.restaurant_key || 'No key'}</Text>
               </View>
 
               <Text style={styles.timestamp}>
-                Added: {new Date(restaurant.created_at).toLocaleDateString()} at {new Date(restaurant.created_at).toLocaleTimeString()}
-                {restaurant.updated_at !== restaurant.created_at && (
+                Added: {restaurant.createdAt || restaurant.created_at ? 
+                  new Date(restaurant.createdAt || restaurant.created_at).toLocaleDateString() + ' at ' + 
+                  new Date(restaurant.createdAt || restaurant.created_at).toLocaleTimeString() : 
+                  'Date unknown'}
+                {(restaurant.updatedAt || restaurant.updated_at) && 
+                 (restaurant.updatedAt !== restaurant.createdAt) && (
                   <Text style={styles.timestampUpdate}>
-                    {'\n'}Updated: {new Date(restaurant.updated_at).toLocaleDateString()} at {new Date(restaurant.updated_at).toLocaleTimeString()}
+                    {'\n'}Updated: {new Date(restaurant.updatedAt || restaurant.updated_at).toLocaleDateString()} at {new Date(restaurant.updatedAt || restaurant.updated_at).toLocaleTimeString()}
                   </Text>
                 )}
               </Text>

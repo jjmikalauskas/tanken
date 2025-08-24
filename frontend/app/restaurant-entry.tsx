@@ -12,6 +12,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { restaurantAPI } from '../services/api';
 
 export default function RestaurantEntry() {
   const [loading, setLoading] = useState(false);
